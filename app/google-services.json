@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1039174616577",
+    "firebase_url": "https://gateway-baptist-church.firebaseio.com",
+    "project_id": "gateway-baptist-church",
+    "storage_bucket": "gateway-baptist-church.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039174616577:android:9bcdc9e7cd5779ca",
+        "android_client_info": {
+          "package_name": "ca.gatewaybaptistchurch.gateway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1039174616577-kv15vaj2hjsu1s75o10vapqb2d0bva6j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAB0K0biPBf11ezv-EpoA7QWZjp-NuCI64"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
