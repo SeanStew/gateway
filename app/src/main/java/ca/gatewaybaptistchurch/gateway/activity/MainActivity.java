@@ -1,4 +1,4 @@
-package ca.gatewaybaptistchurch.gateway;
+package ca.gatewaybaptistchurch.gateway.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +20,10 @@ import net.steamcrafted.materialiconlib.MaterialIconView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.adapter.HomeAdapter;
+import ca.gatewaybaptistchurch.gateway.fragment.MessagesFragment;
+import ca.gatewaybaptistchurch.gateway.fragment.NewsFragment;
 import ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         HomeAdapter adapter = new HomeAdapter(getSupportFragmentManager());
         adapter.addFragment(new MessagesFragment(), "Messages");
         adapter.addFragment(new MessagesFragment(), "Bible");
-        adapter.addFragment(new MessagesFragment(), "News");
+        adapter.addFragment(new NewsFragment(), "News");
         adapter.addFragment(new MessagesFragment(), "Connect");
         adapter.addFragment(new MessagesFragment(), "Give");
         viewPager.setAdapter(adapter);
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(position).setCustomView(rootView);
     }
 
-    private void setTabSelected(View rootView, boolean selected){
+    private void setTabSelected(View rootView, boolean selected) {
         int color = selected ? getResources().getColor(R.color.icons) : getResources().getColor(R.color.iconsDisabled);
         TextView textView = (TextView) rootView.findViewById(R.id.tab_text);
         MaterialIconView iconView = (MaterialIconView) rootView.findViewById(R.id.tab_icon);
@@ -125,7 +128,8 @@ public class MainActivity extends AppCompatActivity {
     TabLayout.OnTabSelectedListener onTabSelected = new TabLayout.OnTabSelectedListener() {
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
-           setTabSelected(tab.getCustomView(), true);
+            viewPager.setCurrentItem(tab.getPosition(), true);
+            setTabSelected(tab.getCustomView(), true);
         }
 
         @Override

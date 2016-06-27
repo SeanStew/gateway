@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp">
+
+    <RelativeLayout
+        android:id="@+id/newsPostItem_rootView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/newsPostItem_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginRight="5dp" />
+
+        <TextView
+            android:id="@+id/newsPostItem_title"
+            style="@style/Base.TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_toRightOf="@id/newsPostItem_image"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Title Test"
+            android:textColor="@color/primaryText" />
+
+        <TextView
+            android:id="@+id/newsPostItem_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/newsPostItem_title"
+            android:layout_toRightOf="@id/newsPostItem_image"
+            android:text="This is a sample description in the message text to determine what it would look like."
+            android:textColor="@color/primaryText" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

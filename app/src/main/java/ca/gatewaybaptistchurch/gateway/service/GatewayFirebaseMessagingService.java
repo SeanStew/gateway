@@ -12,7 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import ca.gatewaybaptistchurch.gateway.MainActivity;
+import ca.gatewaybaptistchurch.gateway.activity.MainActivity;
 import ca.gatewaybaptistchurch.gateway.R;
 import timber.log.Timber;
 

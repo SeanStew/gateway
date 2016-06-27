@@ -6,7 +6,7 @@
 	<color name="accent">#546E7A</color>
 
 	<color name="icons">#FFFFFF</color>
-	<color name="iconsDisabled">#abffffff</color>
+	<color name="iconsDisabled">#80ffffff</color>
 	<color name="primaryText">#de000000</color>
 	<color name="secondaryText">#8a000000</color>
 	<color name="primaryTextLight">#ffffff</color>
