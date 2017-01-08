@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1039174616577-345812n8furattvpt2dhb9bjfouq88vr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ca.gatewaybaptistchurch.gateway",
+            "certificate_hash": "0F14C6EF60BB8512B0C2722D3F929A0E759DF120"
+          }
+        },
+        {
           "client_id": "1039174616577-kv15vaj2hjsu1s75o10vapqb2d0bva6j.apps.googleusercontent.com",
           "client_type": 3
         }
