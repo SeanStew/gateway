@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="ca.gatewaybaptistchurch.gateway">
 
+	<uses-permission android:name="android.permission.INTERNET"/>
+
+	<permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
+
+	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
 	<application
 		android:name=".GatewayApplication"
 		android:allowBackup="true"
@@ -33,11 +40,7 @@
 				<action android:name="com.google.firebase.MESSAGING_EVENT"/>
 			</intent-filter>
 		</service>
-		<service android:name=".service.PodcastPlaybackService">
-			<intent-filter>
-				<action android:name="android.media.browse.MediaBrowserService"/>
-			</intent-filter>
-		</service>
+		<service android:name=".service.PodcastPlaybackService"/>
 	</application>
 
 </manifest>

@@ -8,12 +8,13 @@ import android.view.ViewGroup;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ca.gatewaybaptistchurch.gateway.GatewayFragment;
 import ca.gatewaybaptistchurch.gateway.R;
 
 /**
  * Created by Sean on 5/29/2016.
  */
-public class GiveFragment extends Fragment {
+public class GiveFragment extends GatewayFragment {
 	//<editor-fold desc"View Initialization">
 	@BindView(R.id.giveFragment_emptyViewHolder) View emptyViewHolder;
 

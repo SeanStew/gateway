@@ -3,6 +3,8 @@ package ca.gatewaybaptistchurch.gateway;
 import android.app.Application;
 import android.util.Log;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import timber.log.Timber;
 
 /**
@@ -12,12 +14,22 @@ import timber.log.Timber;
 public class GatewayApplication extends Application {
 	@Override public void onCreate() {
 		super.onCreate();
+		initializeRealm();
 
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugCrashReportingTree());
 		} else {
 			Timber.plant(new CrashReportingTree());
 		}
+	}
+
+	private void initializeRealm() {
+		Realm.init(this);
+		RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().
+				schemaVersion(1).
+				deleteRealmIfMigrationNeeded().
+				build();
+		Realm.setDefaultConfiguration(realmConfiguration);
 	}
 
 	//<editor-fold desc="Timber">

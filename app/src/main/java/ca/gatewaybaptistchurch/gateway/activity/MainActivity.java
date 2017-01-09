@@ -20,6 +20,7 @@ import net.steamcrafted.materialiconlib.MaterialIconView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ca.gatewaybaptistchurch.gateway.GatewayActivity;
 import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.adapter.HomeAdapter;
 import ca.gatewaybaptistchurch.gateway.fragment.BibleFragment;
@@ -29,7 +30,7 @@ import ca.gatewaybaptistchurch.gateway.fragment.MessagesFragment;
 import ca.gatewaybaptistchurch.gateway.fragment.NewsFragment;
 import ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends GatewayActivity {
 	//<editor-fold desc="View Initialization">
 	@BindView(R.id.drawer_layout) DrawerLayout drawer;
 	@BindView(R.id.nav_view) NavigationView navigationView;

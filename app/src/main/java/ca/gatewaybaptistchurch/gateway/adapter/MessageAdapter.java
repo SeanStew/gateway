@@ -13,25 +13,24 @@ import com.bumptech.glide.Glide;
 
 import net.steamcrafted.materialiconlib.MaterialIconView;
 
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.model.Podcast;
 import ca.gatewaybaptistchurch.gateway.utils.Utils;
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
 
 /**
  * Created by Sean on 1/7/2017.
  */
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
+public class MessageAdapter extends RealmRecyclerViewAdapter<Podcast, MessageAdapter.MessageViewHolder> {
 	private MessageViewHolder.MessageViewHolderClickListener clickListener;
-	private List<Podcast> messages;
 
-	public MessageAdapter(List<Podcast> messages, MessageViewHolder.MessageViewHolderClickListener clickListener) {
+	public MessageAdapter(Context context, OrderedRealmCollection<Podcast> podcasts, MessageViewHolder.MessageViewHolderClickListener clickListener) {
+		super(context, podcasts, true);
 		this.clickListener = clickListener;
-		this.messages = messages;
 	}
 
 	@Override public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -41,16 +40,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
 	@Override
 	public void onBindViewHolder(MessageViewHolder holder, int position) {
-		if (messages != null) {
-			holder.bindItem(messages.get(position), clickListener);
+		if (getData() != null && getData().size() > position) {
+			holder.bindItem(getData().get(position), clickListener);
 		}
 	}
-
-	@Override
-	public int getItemCount() {
-		return messages.size();
-	}
-
 
 	public static class MessageViewHolder extends RecyclerView.ViewHolder {
 		//<editor-fold desc="View Initialization">
@@ -74,13 +67,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 		}
 
 		public void bindItem(Podcast message, MessageViewHolderClickListener clickListener) {
-			Glide.with(context).load(message.imageUrl).error(R.drawable.header_image).into(imageView);
+			Glide.with(context).load(message.getImageUrl()).error(R.drawable.header_image).into(imageView);
 
-			titleTextView.setText(message.title);
+			titleTextView.setText(message.getTitle());
 			dateTextView.setText(message.getDateString());
-			durationTextView.setText(message.duration);
+			durationTextView.setText(message.getDuration());
 
-			this.podcastUrl = message.podcastUrl;
+			this.podcastUrl = message.getPodcastUrl();
 			this.clickListener = clickListener;
 		}
 

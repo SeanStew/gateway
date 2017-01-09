@@ -14,6 +14,7 @@ import com.google.firebase.database.Query;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ca.gatewaybaptistchurch.gateway.GatewayFragment;
 import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.adapter.EventAdapter;
 import ca.gatewaybaptistchurch.gateway.model.Event;
@@ -23,7 +24,7 @@ import timber.log.Timber;
 /**
  * Created by Sean on 5/29/2016.
  */
-public class NewsFragment extends Fragment {
+public class NewsFragment extends GatewayFragment {
 	private DatabaseReference database;
 	private EventAdapter adapter;
 
