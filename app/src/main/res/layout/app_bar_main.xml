@@ -5,7 +5,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:fitsSystemWindows="true"
+	android:fitsSystemWindows="false"
 	tools:context=".activity.MainActivity">
 
 	<android.support.design.widget.AppBarLayout
@@ -30,4 +30,52 @@
 	</android.support.design.widget.AppBarLayout>
 
 	<include layout="@layout/content_main"/>
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/mainActivity_mediaCardView"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/listPreferredItemHeight"
+		android:layout_gravity="bottom"
+		android:layout_marginLeft="5dp"
+		android:layout_marginRight="5dp"
+		android:clickable="true"
+		android:background="@android:color/white"
+		app:behavior_hideable="true"
+		app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:padding="8dp">
+
+			<net.steamcrafted.materialiconlib.MaterialIconView
+				android:id="@+id/mainActivity_mediaPlayButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				app:materialIcon="play"
+				app:materialIconSize="24dp"/>
+
+			<TextView
+				android:id="@+id/mainActivity_mediaTextView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_margin="10dp"
+				android:layout_weight="1"
+				android:ellipsize="marquee"
+				android:maxLines="1"
+				android:text="The Church that Changed the World"
+				android:textColor="@color/primaryText"/>
+
+			<ImageView
+				android:id="@+id/mainActivity_mediaImageView"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:scaleType="centerCrop"
+				android:src="@drawable/messages_placeholder"/>
+		</LinearLayout>
+	</android.support.v7.widget.CardView>
 </android.support.design.widget.CoordinatorLayout>

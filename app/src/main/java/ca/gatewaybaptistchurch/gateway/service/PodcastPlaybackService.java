@@ -33,13 +33,10 @@ import ca.gatewaybaptistchurch.gateway.model.Podcast;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import io.realm.Realm;
 
-/**
- * Created by Sean on 1/7/2017.
- */
-
 public class PodcastPlaybackService extends Service implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
 		MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,
 		MediaPlayer.OnBufferingUpdateListener, AudioManager.OnAudioFocusChangeListener {
+	//<editor-fold desc="Variables">
 	private MediaPlayer mediaPlayer;
 
 	//MediaSession
@@ -60,18 +57,15 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 	private final IBinder iBinder = new LocalBinder();
 
 	private Podcast activePodcast;
+	private PodcastPlaybackListener podcastListener;
 
 	//Handle incoming phone calls
 	private boolean ongoingCall = false;
 	private PhoneStateListener phoneStateListener;
 	private TelephonyManager telephonyManager;
+	//</editor-fold>
 
 	//<editor-fold desc="Service lifecycle methods">
-	@Override
-	public IBinder onBind(Intent intent) {
-		return iBinder;
-	}
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -87,7 +81,6 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 		registerPlayNewAudio();
 	}
 
-	//The system calls this method when an activity, requests the service be started
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		try (Realm realm = Realm.getDefaultInstance()) {
@@ -120,13 +113,6 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 	}
 
 	@Override
-	public boolean onUnbind(Intent intent) {
-		mediaSession.release();
-		removeNotification();
-		return super.onUnbind(intent);
-	}
-
-	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		if (mediaPlayer != null) {
@@ -153,6 +139,29 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 			// Return this instance of LocalService so clients can call public methods
 			return PodcastPlaybackService.this;
 		}
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		return iBinder;
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		podcastListener = null;
+		return super.onUnbind(intent);
+	}
+
+	public void setPodcastListener(PodcastPlaybackListener listener) {
+		this.podcastListener = listener;
+	}
+
+	public String getActivePodcastUrl() {
+		if (activePodcast == null) {
+			return null;
+		}
+
+		return activePodcast.getPodcastUrl();
 	}
 	//</editor-fold>
 
@@ -295,6 +304,10 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 	private void playMedia() {
 		if (!mediaPlayer.isPlaying()) {
 			mediaPlayer.start();
+
+			if (podcastListener != null) {
+				podcastListener.onPodcastStarted(activePodcast.getPodcastUrl());
+			}
 		}
 	}
 
@@ -302,6 +315,10 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 		if (mediaPlayer == null) return;
 		if (mediaPlayer.isPlaying()) {
 			mediaPlayer.stop();
+
+			if (podcastListener != null) {
+				podcastListener.onPodcastStopped();
+			}
 		}
 	}
 
@@ -309,6 +326,10 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 		if (mediaPlayer.isPlaying()) {
 			mediaPlayer.pause();
 			resumePosition = mediaPlayer.getCurrentPosition();
+
+			if (podcastListener != null) {
+				podcastListener.onPodcastPaused(activePodcast.getPodcastUrl());
+			}
 		}
 	}
 
@@ -629,4 +650,12 @@ public class PodcastPlaybackService extends Service implements MediaPlayer.OnCom
 		registerReceiver(playNewAudio, filter);
 	}
 	//</editor-fold>
+
+	public interface PodcastPlaybackListener {
+		void onPodcastStarted(String podcastUrl);
+
+		void onPodcastPaused(String podcastUrl);
+
+		void onPodcastStopped();
+	}
 }

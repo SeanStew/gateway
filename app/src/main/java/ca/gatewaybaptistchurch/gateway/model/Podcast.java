@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 
 import java.util.Date;
 
+import ca.gatewaybaptistchurch.gateway.BuildConfig;
 import ca.gatewaybaptistchurch.gateway.utils.Utils;
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -25,6 +26,8 @@ public class Podcast extends RealmObject {
 	private static final DateTimeFormatter podcastXMLFormat = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss -hhmm");
 	@Ignore
 	private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("MMMM dd, yyyy");
+	@Ignore
+	private static final DateTimeFormatter podcastImageUrlFormat = DateTimeFormat.forPattern("yy_M_d");
 
 	@PrimaryKey
 	private String podcastUrl;
@@ -66,18 +69,6 @@ public class Podcast extends RealmObject {
 				if (Utils.isNotNullOrEmpty(title)) {
 					podcast.title = title;
 				}
-			} else if (childName.equalsIgnoreCase("itunes:image")) {
-				NamedNodeMap attributes = childNode.getAttributes();
-				if (attributes == null || attributes.getLength() < 1) {
-					continue;
-				}
-				if (!attributes.item(0).getNodeName().equalsIgnoreCase("href")) {
-					continue;
-				}
-				String imageUrl = attributes.item(0).getNodeValue();
-				if (Utils.isNotNullOrEmpty(imageUrl)) {
-					podcast.imageUrl = imageUrl;
-				}
 			} else if (childName.equalsIgnoreCase("enclosure")) {
 				NamedNodeMap attributes = childNode.getAttributes();
 				if (attributes == null || attributes.getLength() < 1) {
@@ -94,7 +85,10 @@ public class Podcast extends RealmObject {
 				String date = childNode.getTextContent();
 				if (Utils.isNotNullOrEmpty(date)) {
 					try {
-						podcast.date = podcastXMLFormat.parseDateTime(date).toDate();
+						Date podcastDate = podcastXMLFormat.parseDateTime(date).toDate();
+						podcast.date = podcastDate;
+						podcast.imageUrl = String.format("http://%s/images/messages/%s.jpg", BuildConfig.OBJECT_SERVER_IP, podcastImageUrlFormat.print(new DateTime(podcastDate)));
+
 					} catch (Exception ignored) {
 					}
 				}
@@ -207,7 +201,8 @@ public class Podcast extends RealmObject {
 	}
 	//</editor-fold>
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		String toPrint = title;
 		if (Utils.isNotNullOrEmpty(imageUrl)) {
 			toPrint = String.format("%s, imageUrl: %s", toPrint, imageUrl);

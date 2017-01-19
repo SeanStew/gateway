@@ -1,19 +1,26 @@
 package ca.gatewaybaptistchurch.gateway.activity;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.os.IBinder;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
 import net.steamcrafted.materialiconlib.MaterialIconView;
@@ -28,6 +35,9 @@ import ca.gatewaybaptistchurch.gateway.fragment.ConnectFragment;
 import ca.gatewaybaptistchurch.gateway.fragment.GiveFragment;
 import ca.gatewaybaptistchurch.gateway.fragment.MessagesFragment;
 import ca.gatewaybaptistchurch.gateway.fragment.NewsFragment;
+import ca.gatewaybaptistchurch.gateway.model.Podcast;
+import ca.gatewaybaptistchurch.gateway.service.PodcastPlaybackService;
+import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager;
 
 public class MainActivity extends GatewayActivity {
@@ -37,7 +47,17 @@ public class MainActivity extends GatewayActivity {
 	@BindView(R.id.toolbar) Toolbar toolbar;
 	@BindView(R.id.tab_layout) TabLayout tabLayout;
 	@BindView(R.id.view_pager) NonSwipeableViewPager viewPager;
+
+	@BindView(R.id.mainActivity_mediaCardView) View mediaCard;
+	@BindView(R.id.mainActivity_mediaImageView) ImageView mediaImageView;
+	@BindView(R.id.mainActivity_mediaTextView) TextView mediaTextView;
+	@BindView(R.id.mainActivity_mediaPlayButton) MaterialIconView mediaPlayButton;
 	//</editor-fold>
+
+	private PodcastPlaybackService podcastService;
+	boolean serviceBound = false;
+
+	private BottomSheetBehavior bottomSheetBehavior;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +66,18 @@ public class MainActivity extends GatewayActivity {
 		ButterKnife.setDebug(true);
 		ButterKnife.bind(this);
 
+		bottomSheetBehavior = BottomSheetBehavior.from(mediaCard);
+
 		setupViews();
 		setupViewPager();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (serviceBound) {
+			unbindService(serviceConnection);
+		}
 	}
 
 	//<editor-fold desc="View Setup">
@@ -133,7 +163,85 @@ public class MainActivity extends GatewayActivity {
 	}
 	//</editor-fold>
 
+	//<editor-fold desc="Media Control">
+	public void podcastSelected(String podcastUrl) {
+		//Check is service is active
+		if (!serviceBound) {
+			Intent playerIntent = new Intent(this, PodcastPlaybackService.class);
+			playerIntent.putExtra(Constants.Extras.PODCAST_URL, podcastUrl);
+			startService(playerIntent);
+			bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+		} else {
+			Intent broadcastIntent = new Intent(Constants.Actions.PLAY_PODCAST);
+			broadcastIntent.putExtra(Constants.Extras.PODCAST_URL, podcastUrl);
+			sendBroadcast(broadcastIntent);
+		}
+	}
+
+	public String getActivePodcastUrl() {
+		if (podcastService == null) {
+			return null;
+		}
+
+		return podcastService.getActivePodcastUrl();
+	}
+	//</editor-fold>
+
+	//<editor-fold desc="Service Binding">
+	//Binding this Client to the Podcast Service
+	private ServiceConnection serviceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			// We've bound to LocalService, cast the IBinder and get LocalService instance
+			PodcastPlaybackService.LocalBinder binder = (PodcastPlaybackService.LocalBinder) service;
+			podcastService = binder.getService();
+			podcastService.setPodcastListener(podcastPlaybackListener);
+			serviceBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			serviceBound = false;
+		}
+	};
+	//</editor-fold>
+
 	//<editor-fold desc="Listeners">
+	PodcastPlaybackService.PodcastPlaybackListener podcastPlaybackListener = new PodcastPlaybackService.PodcastPlaybackListener() {
+		@Override
+		public void onPodcastStarted(String podcastUrl) {
+			Podcast podcast = Podcast.getPodcast(realm, podcastUrl);
+			if (podcast == null) {
+				return;
+			}
+
+			bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+			Glide.with(MainActivity.this).load(podcast.getImageUrl()).into(mediaImageView);
+			mediaPlayButton.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
+			mediaTextView.setText(podcast.getTitle());
+			mediaTextView.setSelected(true);
+		}
+
+		@Override
+		public void onPodcastPaused(String podcastUrl) {
+			Podcast podcast = Podcast.getPodcast(realm, podcastUrl);
+			if (podcast == null) {
+				return;
+			}
+
+			bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+			Glide.with(MainActivity.this).load(podcast.getImageUrl()).into(mediaImageView);
+			mediaPlayButton.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
+			mediaTextView.setText(podcast.getTitle());
+			mediaTextView.setSelected(true);
+		}
+
+		@Override
+		public void onPodcastStopped() {
+			bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+		}
+	};
+
 	TabLayout.OnTabSelectedListener onTabSelected = new TabLayout.OnTabSelectedListener() {
 		@Override
 		public void onTabSelected(TabLayout.Tab tab) {

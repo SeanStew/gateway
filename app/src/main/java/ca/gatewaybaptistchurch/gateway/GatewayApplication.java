@@ -3,8 +3,10 @@ package ca.gatewaybaptistchurch.gateway;
 import android.app.Application;
 import android.util.Log;
 
+import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
+import io.realm.SyncConfiguration;
+import io.realm.SyncUser;
 import timber.log.Timber;
 
 /**
@@ -12,9 +14,12 @@ import timber.log.Timber;
  */
 
 public class GatewayApplication extends Application {
-	@Override public void onCreate() {
+	private static SyncConfiguration defaultConfig;
+
+	@Override
+	public void onCreate() {
 		super.onCreate();
-		initializeRealm();
+		Realm.init(this);
 
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new DebugCrashReportingTree());
@@ -23,13 +28,13 @@ public class GatewayApplication extends Application {
 		}
 	}
 
-	private void initializeRealm() {
-		Realm.init(this);
-		RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().
-				schemaVersion(1).
-				deleteRealmIfMigrationNeeded().
-				build();
-		Realm.setDefaultConfiguration(realmConfiguration);
+	public void setDefaultRealmConfig(SyncUser syncUser) {
+		SyncConfiguration defaultConfig = new SyncConfiguration.Builder(syncUser, Constants.REALM_URL).build();
+		Realm.setDefaultConfiguration(defaultConfig);
+	}
+
+	public SyncConfiguration getDefaultRealmConfig() {
+		return defaultConfig;
 	}
 
 	//<editor-fold desc="Timber">

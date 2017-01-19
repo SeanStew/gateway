@@ -11,33 +11,60 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="5dp">
 
-		<RelativeLayout
+		<ca.gatewaybaptistchurch.gateway.view.FixedRatioRelativeLayout
 			android:id="@+id/messageItem_rootView"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:clickable="true">
+			android:layout_height="1000dp"
+			android:clickable="true"
+			app:aspectRatioHeight="9"
+			app:aspectRatioWidth="16">
 
 			<ImageView
 				android:id="@+id/messageItem_image"
 				android:layout_width="match_parent"
-				android:layout_height="140dp"
+				android:layout_height="match_parent"
 				android:scaleType="centerCrop"
-				android:src="@drawable/header_image"/>
+				android:src="@drawable/messages_placeholder"/>
 
-			<ImageView
+			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="60dp"
-				android:layout_alignBottom="@id/messageItem_image"
-				android:src="@drawable/bottom_shadow"/>
+				android:layout_height="match_parent"
+				android:orientation="vertical">
 
-			<TextView
-				android:id="@+id/messageItem_date"
+				<ImageView
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:layout_weight="1"
+					android:rotation="180"
+					android:src="@drawable/bottom_shadow"/>
+
+				<ImageView
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:layout_weight="1"
+					android:src="@drawable/bottom_shadow"/>
+			</LinearLayout>
+
+			<net.steamcrafted.materialiconlib.MaterialIconView
+				android:id="@+id/messageItem_playButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignBottom="@id/messageItem_image"
+				android:layout_centerInParent="true"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:clickable="true"
+				app:materialIcon="play_circle_outline"
+				app:materialIconColor="@color/primaryTextLight"
+				app:materialIconSize="64dp"/>
+
+			<TextView
+				android:id="@+id/messageItem_duration"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
 				android:layout_margin="10dp"
-				android:text="January 1, 2017"
+				android:gravity="center"
+				android:text="23min"
 				android:textColor="@color/primaryTextLight"/>
 
 			<TextView
@@ -45,55 +72,33 @@
 				style="@style/Base.TextAppearance.AppCompat.Title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignBottom="@id/messageItem_image"
-				android:layout_alignStart="@id/messageItem_image"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
 				android:layout_margin="10dp"
-				android:layout_toLeftOf="@id/messageItem_date"
-				android:maxLines="2"
+				android:layout_toLeftOf="@id/messageItem_duration"
 				android:text="New Years Message"
 				android:textColor="@color/primaryTextLight"/>
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="60dp"
-				android:layout_below="@id/messageItem_image"
-				android:gravity="center_vertical"
-				android:orientation="horizontal"
-				android:padding="8dp">
+			<TextView
+				android:id="@+id/messageItem_speaker"
+				style="@style/TextAppearance.AppCompat.Subhead"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:layout_margin="10dp"
+				android:text="Gateway Baptist Church"
+				android:textColor="@color/primaryTextLight"/>
 
-				<net.steamcrafted.materialiconlib.MaterialIconView
-					android:id="@+id/messageItem_playButton"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackgroundBorderless"
-					app:materialIcon="play"
-					app:materialIconSize="24dp"/>
-
-				<SeekBar
-					android:id="@+id/messageItem_seekbar"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"/>
-
-				<TextView
-					android:id="@+id/messageItem_durationTextView"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="4dp"
-					android:text="25:23"
-					android:textColor="@color/primaryText"/>
-
-				<net.steamcrafted.materialiconlib.MaterialIconView
-					android:id="@+id/messageItem_downloadButton"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackgroundBorderless"
-					app:materialIcon="download"
-					app:materialIconSize="24dp"/>
-
-			</LinearLayout>
-		</RelativeLayout>
-
+			<TextView
+				android:id="@+id/messageItem_date"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:layout_alignParentRight="true"
+				android:layout_margin="10dp"
+				android:gravity="center"
+				android:text="January 1, 2017"
+				android:textColor="@color/primaryTextLight"/>
+		</ca.gatewaybaptistchurch.gateway.view.FixedRatioRelativeLayout>
 	</android.support.v7.widget.CardView>
-
 </LinearLayout>

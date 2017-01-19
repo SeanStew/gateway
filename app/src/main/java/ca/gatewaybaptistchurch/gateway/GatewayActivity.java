@@ -11,7 +11,7 @@ import io.realm.Realm;
  */
 
 public class GatewayActivity extends AppCompatActivity {
-	private Realm realm;
+	protected Realm realm;
 
 	@Override protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

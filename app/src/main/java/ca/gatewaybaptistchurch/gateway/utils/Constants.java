@@ -7,6 +7,9 @@ import ca.gatewaybaptistchurch.gateway.BuildConfig;
  */
 
 public class Constants {
+	public static final String AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth";
+	public static final String REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/gatewayApp";
+
 	public interface MediaActions {
 		String PLAY = BuildConfig.APPLICATION_ID + ".ACTION_PLAY";
 		String PAUSE = BuildConfig.APPLICATION_ID + ".ACTION_PAUSE";
@@ -20,7 +23,7 @@ public class Constants {
 	}
 
 	public interface Actions {
-		String PLAY_PODCAST = BuildConfig.APPLICATION_ID + ".playPodcast";
+		String PLAY_PODCAST = BuildConfig.APPLICATION_ID + ".podcastSelected";
 	}
 
 	public enum PlaybackStatus {
