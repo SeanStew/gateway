@@ -13,6 +13,10 @@ import com.bumptech.glide.Glide;
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
 import net.steamcrafted.materialiconlib.MaterialIconView;
 
+import org.joda.time.Duration;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -27,6 +31,7 @@ import io.realm.RealmRecyclerViewAdapter;
  */
 public class MessageAdapter extends RealmRecyclerViewAdapter<Podcast, MessageAdapter.MessageViewHolder> {
 	private MessageViewHolder.MessageViewHolderClickListener clickListener;
+	private static PeriodFormatter durationFormat = new PeriodFormatterBuilder().appendMinutes().appendLiteral(" mins").toFormatter();
 	public static String playingUrl;
 
 	public MessageAdapter(Context context, OrderedRealmCollection<Podcast> podcasts, MessageViewHolder.MessageViewHolderClickListener clickListener) {
@@ -56,6 +61,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter<Podcast, MessageAda
 		//<editor-fold desc="View Initialization">
 		@BindView(R.id.messageItem_image) ImageView imageView;
 		@BindView(R.id.messageItem_title) TextView titleTextView;
+		@BindView(R.id.messageItem_speaker) TextView speakerTextView;
 		@BindView(R.id.messageItem_date) TextView dateTextView;
 		@BindView(R.id.messageItem_duration) TextView durationTextView;
 		@BindView(R.id.messageItem_playButton) MaterialIconView playButton;
@@ -72,11 +78,12 @@ public class MessageAdapter extends RealmRecyclerViewAdapter<Podcast, MessageAda
 		}
 
 		public void bindItem(Podcast message, MessageViewHolderClickListener clickListener) {
-			Glide.with(context).load(message.getImageUrl()).placeholder(R.drawable.messages_placeholder).error(R.drawable.messages_placeholder).into(imageView);
+			Glide.with(context.getApplicationContext()).load(message.getImageUrl()).placeholder(R.drawable.messages_placeholder).error(R.drawable.messages_placeholder).into(imageView);
 
 			titleTextView.setText(message.getTitle());
+			speakerTextView.setText(message.getSpeaker());
 			dateTextView.setText(message.getDateString());
-			durationTextView.setText(message.getDuration());
+			durationTextView.setText(durationFormat.print(new Duration(message.getDurationLong()).toPeriod()));
 
 			this.podcastUrl = message.getPodcastUrl();
 			this.clickListener = clickListener;

@@ -36,7 +36,7 @@ public class GatewayFirebaseMessagingService extends FirebaseMessagingService {
 
 		Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-				.setSmallIcon(R.drawable.ic_help_black_24dp)
+				.setSmallIcon(R.mipmap.ic_status_icon)
 				.setContentTitle(notification.getTitle())
 				.setContentText(notification.getBody())
 				.setAutoCancel(true)

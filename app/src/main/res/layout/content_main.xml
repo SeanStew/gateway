@@ -1,8 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager
-	android:id="@+id/view_pager"
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+	android:animateLayoutChanges="true"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/mainActivity_mediaCardView"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/listPreferredItemHeight"
+		android:layout_alignParentBottom="true"
+		android:layout_marginLeft="5dp"
+		android:layout_marginRight="5dp"
+		android:animateLayoutChanges="true"
+		android:background="@android:color/white"
+		android:visibility="gone"
+		app:cardElevation="8dp">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:padding="8dp">
+
+			<net.steamcrafted.materialiconlib.MaterialIconView
+				android:id="@+id/mainActivity_mediaPlayButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				app:materialIcon="play"
+				app:materialIconSize="24dp"/>
+
+			<TextView
+				android:id="@+id/mainActivity_mediaTextView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_margin="10dp"
+				android:layout_weight="1"
+				android:ellipsize="marquee"
+				android:maxLines="1"
+				android:text="The Church that Changed the World"
+				android:textColor="@color/primaryText"/>
+
+			<ImageView
+				android:id="@+id/mainActivity_mediaImageView"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:scaleType="centerCrop"
+				android:src="@drawable/messages_placeholder"/>
+		</LinearLayout>
+	</android.support.v7.widget.CardView>
+
+	<ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager
+		android:id="@+id/view_pager"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_above="@id/mainActivity_mediaCardView"
+		android:layout_alignParentTop="true"/>
+
+</RelativeLayout>

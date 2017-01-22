@@ -12,18 +12,16 @@
 		android:orientation="vertical">
 
 		<net.steamcrafted.materialiconlib.MaterialIconView
-			android:id="@+id/messagesFragment_emptyViewIcon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:materialIcon="reload"
+			app:materialIcon="newspaper"
 			app:materialIconColor="@color/secondaryText"
 			app:materialIconSize="@dimen/empty_view_icon"/>
 
 		<TextView
-			android:id="@+id/messagesFragment_emptyViewText"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Loading messages"
+			android:text="No messages available at this time"
 			android:textColor="@color/secondaryText"/>
 	</LinearLayout>
 

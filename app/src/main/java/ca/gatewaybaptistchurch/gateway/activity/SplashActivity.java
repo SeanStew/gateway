@@ -20,7 +20,7 @@ import timber.log.Timber;
 
 public class SplashActivity extends AppCompatActivity {
 	private static String TAG = SplashActivity.class.getSimpleName();
-	private static String DEBUG_USER = "sean1991stewart@gmail.com";
+	private static String DEBUG_USER = "thepixelcrunch@gmail.com";
 	private static String DEBUG_USER_PASSWORD = "xdfsj2eq";
 
 	@Override

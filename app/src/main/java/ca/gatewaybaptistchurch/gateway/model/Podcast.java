@@ -1,8 +1,10 @@
 package ca.gatewaybaptistchurch.gateway.model;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -17,17 +19,21 @@ import io.realm.Sort;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
+import static org.joda.time.format.DateTimeFormat.forPattern;
+
 /**
  * Created by Sean on 1/7/2017.
  */
 
 public class Podcast extends RealmObject {
 	@Ignore
-	private static final DateTimeFormatter podcastXMLFormat = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss -hhmm");
+	private static final DateTimeFormatter podcastXMLFormat = forPattern("EEE, dd MMM yyyy HH:mm:ss -hhmm");
 	@Ignore
-	private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("MMMM dd, yyyy");
+	private static final DateTimeFormatter dateFormat = forPattern("MMMM dd, yyyy");
 	@Ignore
-	private static final DateTimeFormatter podcastImageUrlFormat = DateTimeFormat.forPattern("yy_M_d");
+	private static final DateTimeFormatter podcastImageUrlFormat = forPattern("yy_M_d");
+	@Ignore
+	private static PeriodFormatter durationFormat = new PeriodFormatterBuilder().appendHours().appendLiteral(":").appendMinutes().appendLiteral(":").appendSeconds().toFormatter();
 
 	@PrimaryKey
 	private String podcastUrl;
@@ -47,6 +53,10 @@ public class Podcast extends RealmObject {
 			return null;
 		}
 		return realm.where(Podcast.class).equalTo("podcastUrl", podcastUrl).findFirst();
+	}
+
+	public static Podcast getNewestPodcast(Realm realm) {
+		return realm.where(Podcast.class).findAllSorted("date", Sort.DESCENDING).first();
 	}
 	//</editor-fold>
 
@@ -87,7 +97,7 @@ public class Podcast extends RealmObject {
 					try {
 						Date podcastDate = podcastXMLFormat.parseDateTime(date).toDate();
 						podcast.date = podcastDate;
-						podcast.imageUrl = String.format("http://%s/images/messages/%s.jpg", BuildConfig.OBJECT_SERVER_IP, podcastImageUrlFormat.print(new DateTime(podcastDate)));
+						podcast.imageUrl = String.format("http://%s/messages/%s.jpg", BuildConfig.OBJECT_SERVER_IP, podcastImageUrlFormat.print(new DateTime(podcastDate)));
 
 					} catch (Exception ignored) {
 					}
@@ -161,6 +171,21 @@ public class Podcast extends RealmObject {
 	}
 
 	public String getDuration() {
+		return duration;
+	}
+
+	public long getDurationLong() {
+		long duration = 0;
+		if (!Utils.isNotNullOrEmpty(getDuration())) {
+			return duration;
+		}
+
+		try {
+			Period periodTime = durationFormat.parsePeriod(getDuration());
+			duration = periodTime.toStandardDuration().getMillis();
+		} catch (Exception ignored) {
+		}
+
 		return duration;
 	}
 

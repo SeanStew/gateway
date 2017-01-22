@@ -1,5 +1,9 @@
 package ca.gatewaybaptistchurch.gateway.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,10 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
-import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
-import net.steamcrafted.materialiconlib.MaterialIconView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -27,10 +27,14 @@ import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.activity.MainActivity;
 import ca.gatewaybaptistchurch.gateway.adapter.MessageAdapter;
 import ca.gatewaybaptistchurch.gateway.model.Podcast;
+import ca.gatewaybaptistchurch.gateway.utils.Constants;
+import ca.gatewaybaptistchurch.gateway.utils.Utils;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import timber.log.Timber;
+
+import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.PODCAST_STATE_UPDATE;
 
 /**
  * Created by Sean on 5/29/2016.
@@ -41,10 +45,6 @@ public class MessagesFragment extends GatewayFragment {
 	View emptyViewHolder;
 	@BindView(R.id.messagesFragment_recyclerView)
 	RecyclerView recyclerView;
-	@BindView(R.id.messagesFragment_emptyViewIcon)
-	MaterialIconView emptyViewIcon;
-	@BindView(R.id.messagesFragment_emptyViewText)
-	TextView emptyViewText;
 	//</editor-fold>
 
 	MainActivity activity;
@@ -62,6 +62,7 @@ public class MessagesFragment extends GatewayFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+		registerReceivers();
 		podcasts = Podcast.getPodcasts(realm);
 		podcasts.addChangeListener(new RealmChangeListener<RealmResults<Podcast>>() {
 			@Override
@@ -69,27 +70,29 @@ public class MessagesFragment extends GatewayFragment {
 				if (emptyViewHolder.getVisibility() == View.VISIBLE && !podcasts.isEmpty()) {
 					setupRecyclerView();
 				} else if (emptyViewHolder.getVisibility() == View.GONE && podcasts.isEmpty()) {
-					setupEmptyView(false);
+					setupEmptyView();
 				}
+				podcasts.removeChangeListener(this);
 			}
 		});
-		if (podcasts.isEmpty()) {
-			return;
-		}
+
 		setupRecyclerView();
 	}
 
-	public void setupEmptyView(boolean isLoading) {
+	@Override
+	public void onStop() {
+		unregisterReceivers();
+		super.onStop();
+	}
+
+	public void setupEmptyView() {
 		recyclerView.setVisibility(View.GONE);
 		emptyViewHolder.setVisibility(View.VISIBLE);
-
-		emptyViewText.setText(isLoading ? "Loading messages" : "No messages at this time");
-		emptyViewIcon.setIcon(isLoading ? MaterialDrawableBuilder.IconValue.RELOAD : MaterialDrawableBuilder.IconValue.NEWSPAPER);
 	}
 
 	public void setupRecyclerView() {
 		if (podcasts.isEmpty()) {
-			setupEmptyView(false);
+			setupEmptyView();
 		}
 
 		emptyViewHolder.setVisibility(View.GONE);
@@ -110,6 +113,38 @@ public class MessagesFragment extends GatewayFragment {
 			}
 
 			activity.podcastSelected(podcastUrl);
+		}
+	};
+	//</editor-fold>
+
+	//<editor-fold desc="Receivers">
+	private void registerReceivers() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(PODCAST_STATE_UPDATE);
+		getActivity().registerReceiver(broadcastReceiver, filter);
+	}
+
+	private void unregisterReceivers() {
+		getActivity().unregisterReceiver(broadcastReceiver);
+	}
+
+	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent == null || intent.getAction() == null) {
+				return;
+			}
+
+			switch (intent.getAction()) {
+				case PODCAST_STATE_UPDATE:
+					Constants.PodcastState state = Utils.getPodcastStateFromIntent(intent);
+					if (state == Constants.PodcastState.PLAYING) {
+						adapter.setPlayingUrl(intent.getStringExtra(Constants.Extras.PODCAST_URL));
+					} else {
+						adapter.setPlayingUrl(null);
+					}
+					break;
+			}
 		}
 	};
 	//</editor-fold>

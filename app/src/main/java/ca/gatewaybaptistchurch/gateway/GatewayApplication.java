@@ -1,6 +1,7 @@
 package ca.gatewaybaptistchurch.gateway;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
@@ -15,10 +16,12 @@ import timber.log.Timber;
 
 public class GatewayApplication extends Application {
 	private static SyncConfiguration defaultConfig;
+	private static Context context;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		context = this;
 		Realm.init(this);
 
 		if (BuildConfig.DEBUG) {
@@ -29,12 +32,16 @@ public class GatewayApplication extends Application {
 	}
 
 	public void setDefaultRealmConfig(SyncUser syncUser) {
-		SyncConfiguration defaultConfig = new SyncConfiguration.Builder(syncUser, Constants.REALM_URL).build();
+		defaultConfig = new SyncConfiguration.Builder(syncUser, Constants.REALM_URL).build();
 		Realm.setDefaultConfiguration(defaultConfig);
 	}
 
 	public SyncConfiguration getDefaultRealmConfig() {
 		return defaultConfig;
+	}
+
+	public static Context getContext() {
+		return context;
 	}
 
 	//<editor-fold desc="Timber">

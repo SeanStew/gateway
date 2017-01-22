@@ -18,17 +18,17 @@ android {
 		minSdkVersion 19
 		targetSdkVersion 25
 		versionCode 1
-		versionName "1.0"
+		versionName "1.0.1"
 	}
 	buildTypes {
 		debug {
-			buildConfigField "String", "OBJECT_SERVER_IP", "\"159.203.60.20\""
+			buildConfigField "String", "OBJECT_SERVER_IP", "\"159.203.55.76\""
 			signingConfig signingConfigs.config
 		}
 		release {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-			buildConfigField "String", "OBJECT_SERVER_IP", "\"159.203.60.20\""
+			buildConfigField "String", "OBJECT_SERVER_IP", "\"159.203.55.76\""
 		}
 	}
 }
@@ -44,12 +44,11 @@ dependencies {
 	compile 'com.android.support:design:25.1.0'
 	compile 'com.android.support:cardview-v7:25.1.0'
 	compile 'com.android.support:recyclerview-v7:25.1.0'
+	compile 'com.android.support:customtabs:25.1.0'
 	//Firebase
 	compile 'com.google.firebase:firebase-core:10.0.1'
 	compile 'com.google.firebase:firebase-crash:10.0.1'
-	compile 'com.google.firebase:firebase-database:10.0.1'
 	compile 'com.google.firebase:firebase-messaging:10.0.1'
-	compile 'com.firebaseui:firebase-ui-database:1.0.1'
 	//Glide
 	compile 'com.squareup.okhttp3:okhttp:3.3.1'
 	compile 'com.github.bumptech.glide:glide:3.7.0'
