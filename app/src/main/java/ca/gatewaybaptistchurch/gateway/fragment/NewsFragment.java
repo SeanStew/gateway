@@ -35,7 +35,6 @@ public class NewsFragment extends GatewayFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.content_news, container, false);
 		ButterKnife.bind(this, rootView);
-		emptyViewHolder.setVisibility(View.GONE);
 
 		return rootView;
 	}

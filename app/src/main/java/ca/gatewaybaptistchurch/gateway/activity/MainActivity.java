@@ -167,8 +167,8 @@ public class MainActivity extends GatewayActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 
-		//noinspection SimplifiableIfStatement
 		if (id == R.id.action_settings) {
+			//new ZefaniaToRealm().execute();
 			return true;
 		}
 

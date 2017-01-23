@@ -25,7 +25,7 @@ import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.model.Event;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import ca.gatewaybaptistchurch.gateway.utils.Utils;
-import ca.gatewaybaptistchurch.gateway.view.SquareImageView;
+import ca.gatewaybaptistchurch.gateway.view.FixedRatioImageView;
 import io.realm.RealmChangeListener;
 import io.realm.RealmModel;
 
@@ -37,7 +37,7 @@ public class NewsDetailActivity extends GatewayActivity {
 	private static final String TAG = NewsDetailActivity.class.getSimpleName();
 	//<editor-fold desc="View Initialization">
 	@BindView(R.id.fab) FloatingActionButton fab;
-	@BindView(R.id.toolbar_image) SquareImageView toolbarImage;
+	@BindView(R.id.toolbar_image) FixedRatioImageView toolbarImage;
 	@BindView(R.id.toolbar) Toolbar toolbar;
 	@BindView(R.id.toolbar_layout) CollapsingToolbarLayout collapsingToolbarLayout;
 

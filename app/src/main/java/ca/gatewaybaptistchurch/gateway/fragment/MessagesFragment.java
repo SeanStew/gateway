@@ -41,10 +41,8 @@ import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.PODCAST_ST
  */
 public class MessagesFragment extends GatewayFragment {
 	//<editor-fold desc"View Initialization">
-	@BindView(R.id.messagesFragment_emptyViewHolder)
-	View emptyViewHolder;
-	@BindView(R.id.messagesFragment_recyclerView)
-	RecyclerView recyclerView;
+	@BindView(R.id.messagesFragment_emptyViewHolder) View emptyViewHolder;
+	@BindView(R.id.messagesFragment_recyclerView) RecyclerView recyclerView;
 	//</editor-fold>
 
 	MainActivity activity;
