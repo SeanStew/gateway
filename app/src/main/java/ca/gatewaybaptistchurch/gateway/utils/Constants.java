@@ -8,7 +8,7 @@ import ca.gatewaybaptistchurch.gateway.BuildConfig;
 
 public class Constants {
 	public static final String AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth";
-	public static final String REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/gatewayApp";
+	public static final String REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/gatewayApp";
 
 	public enum PodcastState {
 		PLAYING, PAUSED, STOPPED

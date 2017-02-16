@@ -1,10 +1,12 @@
 package ca.gatewaybaptistchurch.gateway.model;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -20,21 +22,34 @@ public class Bible extends RealmObject {
 	private String locale;
 	private int bookCount = 0;
 
-	private RealmList<Book> books;
-
 	public static Bible createBible(Element bibleInfoElement) {
 		Bible bible = new Bible();
-		String longName = bibleInfoElement.getAttribute("title");
+		String longName = getTextFromElement(bibleInfoElement, "title");
 
 		bible.setLongName(longName);
-		bible.setShortName(bibleInfoElement.getAttribute("identifier"));
-		bible.setDescription(bibleInfoElement.getAttribute("description"));
-		bible.setLocale(bibleInfoElement.getAttribute("language"));
+		bible.setShortName(bibleInfoElement.getAttribute("osisWork"));
 		bible.setId(longName.hashCode());
 		return bible;
 	}
 
+	private static String getTextFromElement(Element element, String elementTag) {
+		NodeList child = element.getElementsByTagName(elementTag);
+		if (child == null || child.getLength() <= 0) {
+			return "";
+		}
+
+		return child.item(0).getTextContent();
+	}
+
+	public RealmResults<Book> getBooks(Realm realm) {
+		return realm.where(Book.class).equalTo("bibleId", getId()).findAllSorted("number", Sort.ASCENDING);
+	}
+
 	//<editor-fold desc="Fetching">
+	public static RealmResults<Bible> getBibles(Realm realm) {
+		return realm.where(Bible.class).findAllSorted("longName");
+	}
+
 	public static Bible getBible(Realm realm, long id) {
 		if (id == -1) {
 			return realm.where(Bible.class).findFirst();
@@ -43,8 +58,9 @@ public class Bible extends RealmObject {
 		return realm.where(Bible.class).equalTo("id", id).findFirst();
 	}
 
-	public Book getBook(int bookNumber) {
-		return getBooks().where().equalTo("number", bookNumber).findFirst();
+	public Book getBook(Realm realm, int bookNumber) {
+		return realm.where(Book.class).equalTo("bibleId", id).equalTo("number", bookNumber).findFirst();
+		//return getBooks().where().equalTo("number", bookNumber).findFirst();
 	}
 	//</editor-fold>
 
@@ -95,17 +111,6 @@ public class Bible extends RealmObject {
 
 	public void setBookCount(int bookCount) {
 		this.bookCount = bookCount;
-	}
-
-	public RealmList<Book> getBooks() {
-		if (books == null) {
-			books = new RealmList<>();
-		}
-		return books;
-	}
-
-	public void setBooks(RealmList<Book> books) {
-		this.books = books;
 	}
 	//</editor-fold>
 }

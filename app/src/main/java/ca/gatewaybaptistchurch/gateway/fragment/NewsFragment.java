@@ -44,29 +44,19 @@ public class NewsFragment extends GatewayFragment {
 		super.onStart();
 
 		events = Event.getEvents(realm);
-		events.addChangeListener(new RealmChangeListener<RealmResults<Event>>() {
-			@Override
-			public void onChange(RealmResults<Event> element) {
-				if (emptyViewHolder.getVisibility() == View.VISIBLE && !events.isEmpty()) {
-					setupRecyclerView();
-				} else if (emptyViewHolder.getVisibility() == View.GONE && events.isEmpty()) {
-					setupEmptyView();
-				}
-				events.removeChangeListener(this);
-			}
-		});
-
+		events.addChangeListener(onEventsChanged);
 		setupRecyclerView();
 	}
 
-	public void setupEmptyView() {
+	private void setupEmptyView() {
 		recyclerView.setVisibility(View.GONE);
 		emptyViewHolder.setVisibility(View.VISIBLE);
 	}
 
-	public void setupRecyclerView() {
+	private void setupRecyclerView() {
 		if (events.isEmpty()) {
 			setupEmptyView();
+			return;
 		}
 
 		emptyViewHolder.setVisibility(View.GONE);
@@ -78,6 +68,17 @@ public class NewsFragment extends GatewayFragment {
 	}
 
 	//<editor-fold desc="Listeners">
+	RealmChangeListener<RealmResults<Event>> onEventsChanged = new RealmChangeListener<RealmResults<Event>>() {
+		@Override
+		public void onChange(RealmResults<Event> element) {
+			if (emptyViewHolder.getVisibility() == View.VISIBLE && !events.isEmpty()) {
+				setupRecyclerView();
+			} else if (emptyViewHolder.getVisibility() == View.GONE && events.isEmpty()) {
+				setupEmptyView();
+			}
+		}
+	};
+
 	EventAdapter.EventViewHolder.OnEventClickListener eventClickListener = new EventAdapter.EventViewHolder.OnEventClickListener() {
 		@Override
 		public void onClick(String eventUuid) {

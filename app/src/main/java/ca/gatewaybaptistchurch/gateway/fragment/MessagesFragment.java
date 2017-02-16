@@ -62,18 +62,7 @@ public class MessagesFragment extends GatewayFragment {
 		super.onStart();
 		registerReceivers();
 		podcasts = Podcast.getPodcasts(realm);
-		podcasts.addChangeListener(new RealmChangeListener<RealmResults<Podcast>>() {
-			@Override
-			public void onChange(RealmResults<Podcast> element) {
-				if (emptyViewHolder.getVisibility() == View.VISIBLE && !podcasts.isEmpty()) {
-					setupRecyclerView();
-				} else if (emptyViewHolder.getVisibility() == View.GONE && podcasts.isEmpty()) {
-					setupEmptyView();
-				}
-				podcasts.removeChangeListener(this);
-			}
-		});
-
+		podcasts.addChangeListener(onPodcastsChanged);
 		setupRecyclerView();
 	}
 
@@ -91,6 +80,7 @@ public class MessagesFragment extends GatewayFragment {
 	public void setupRecyclerView() {
 		if (podcasts.isEmpty()) {
 			setupEmptyView();
+			return;
 		}
 
 		emptyViewHolder.setVisibility(View.GONE);
@@ -102,6 +92,17 @@ public class MessagesFragment extends GatewayFragment {
 	}
 
 	//<editor-fold desc="Listeners">
+	RealmChangeListener<RealmResults<Podcast>> onPodcastsChanged = new RealmChangeListener<RealmResults<Podcast>>() {
+		@Override
+		public void onChange(RealmResults<Podcast> element) {
+			if (emptyViewHolder.getVisibility() == View.VISIBLE && !podcasts.isEmpty()) {
+				setupRecyclerView();
+			} else if (emptyViewHolder.getVisibility() == View.GONE && podcasts.isEmpty()) {
+				setupEmptyView();
+			}
+		}
+	};
+
 	MessageAdapter.MessageViewHolder.MessageViewHolderClickListener messageClickListener = new MessageAdapter.MessageViewHolder.MessageViewHolderClickListener() {
 		@Override
 		public void onPlayClicked(String podcastUrl) {

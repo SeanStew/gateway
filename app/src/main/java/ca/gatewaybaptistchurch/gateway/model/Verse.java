@@ -2,6 +2,7 @@ package ca.gatewaybaptistchurch.gateway.model;
 
 import org.w3c.dom.Element;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -16,20 +17,25 @@ public class Verse extends RealmObject {
 	private Integer number;
 	private String text;
 
-	public static Verse createVerse(long chapterId, Element verseElement) {
+	public static Verse createVerse(Realm realm, long chapterId, Element verseElement) {
 		Verse verse = new Verse();
 		int number = -1;
 		try {
-			number = Integer.valueOf(verseElement.getAttribute("vnumber"));
+			String[] sNumbers = verseElement.getAttribute("osisID").split("[.]");
+			String sNumber = sNumbers[sNumbers.length - 1];
+			number = Integer.valueOf(sNumber);
 		} catch (Exception ignored) {
 		}
-		verse.setId(chapterId + number);
+		String text = verseElement.getTextContent();
+		verse.setId(text.hashCode() + number);
 		verse.setChapterId(chapterId);
 		verse.setNumber(number);
-		verse.setText(verseElement.getTextContent());
+		verse.setText(text);
+		realm.beginTransaction();
+		realm.copyToRealmOrUpdate(verse);
+		realm.commitTransaction();
 		return verse;
 	}
-
 
 	//<editor-fold desc="Getter and Setters">
 	public long getId() {

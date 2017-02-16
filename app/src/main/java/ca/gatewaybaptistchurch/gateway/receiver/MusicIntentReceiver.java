@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.KeyEvent;
 
+import ca.gatewaybaptistchurch.gateway.service.MusicService;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
 
 /**
@@ -33,31 +34,32 @@ public class MusicIntentReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-			context.startService(new Intent(Constants.MediaActions.PAUSE));
+			context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.PAUSE));
 		} else if (intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
 			KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
-			if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN)
+			if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
 				return;
+			}
 
 			switch (keyEvent.getKeyCode()) {
 				case KeyEvent.KEYCODE_HEADSETHOOK:
 				case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-					context.startService(new Intent(Constants.MediaActions.TOGGLE_PLAYBACK));
+					context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.TOGGLE_PLAYBACK));
 					break;
 				case KeyEvent.KEYCODE_MEDIA_PLAY:
-					context.startService(new Intent(Constants.MediaActions.PLAY));
+					context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.PLAY));
 					break;
 				case KeyEvent.KEYCODE_MEDIA_PAUSE:
-					context.startService(new Intent(Constants.MediaActions.PAUSE));
+					context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.PAUSE));
 					break;
 				case KeyEvent.KEYCODE_MEDIA_STOP:
-					context.startService(new Intent(Constants.MediaActions.STOP));
+					context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.STOP));
 					break;
 				case KeyEvent.KEYCODE_MEDIA_NEXT:
-					context.startService(new Intent(Constants.MediaActions.NEXT));
+					context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.NEXT));
 					break;
 				case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-					context.startService(new Intent(Constants.MediaActions.PREVIOUS));
+					context.startService(new Intent(context, MusicService.class).setAction(Constants.MediaActions.PREVIOUS));
 					break;
 			}
 		}

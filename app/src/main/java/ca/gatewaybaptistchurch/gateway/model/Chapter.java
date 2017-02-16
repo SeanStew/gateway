@@ -3,7 +3,6 @@ package ca.gatewaybaptistchurch.gateway.model;
 import org.w3c.dom.Element;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -20,13 +19,12 @@ public class Chapter extends RealmObject {
 	private Integer number;
 	private int verseCount = 0;
 
-	private RealmList<Verse> verses;
-
 	public static Chapter createChapter(long bookId, Element chapterElement) {
 		Chapter chapter = new Chapter();
 		int number = -1;
 		try {
-			number = Integer.valueOf(chapterElement.getAttribute("cnumber"));
+			String sNumber = chapterElement.getAttribute("osisID").replaceAll("[^0-9]", "");
+			number = Integer.valueOf(sNumber);
 		} catch (Exception ignored) {
 		}
 		chapter.setId(bookId + number);
@@ -35,10 +33,11 @@ public class Chapter extends RealmObject {
 		return chapter;
 	}
 
-	public String getVersesFormatted() {
+	public String getVersesFormatted(Realm realm) {
 		String verseText = "";
-		for (int i = 0; i < getVerses().size(); i++) {
-			Verse verse = getVerses().get(i);
+		RealmResults<Verse> verses = getVerses(realm);
+		for (int i = 0; i < verses.size(); i++) {
+			Verse verse = verses.get(i);
 			verseText = String.format("%s<sub>%s</sub>%s", verseText, verse.getNumber(), verse.getText());
 		}
 
@@ -58,8 +57,12 @@ public class Chapter extends RealmObject {
 		return realm.where(Chapter.class).equalTo("bookId", bookId).findAllSorted("number", Sort.DESCENDING);
 	}
 
-	public Verse getVerse(int verseNumber) {
-		return getVerses().where().equalTo("number", verseNumber).findFirst();
+	public RealmResults<Verse> getVerses(Realm realm) {
+		return realm.where(Verse.class).equalTo("chapterId", getId()).findAllSorted("number", Sort.ASCENDING);
+	}
+
+	public Verse getVerse(Realm realm, int verseNumber) {
+		return realm.where(Verse.class).equalTo("chapterId", getId()).equalTo("number", verseNumber).findFirst();
 	}
 	//</editor-fold>
 
@@ -97,17 +100,6 @@ public class Chapter extends RealmObject {
 
 	public void setVerseCount(int verseCount) {
 		this.verseCount = verseCount;
-	}
-
-	public RealmList<Verse> getVerses() {
-		if (verses == null) {
-			verses = new RealmList<>();
-		}
-		return verses;
-	}
-
-	public void setVerses(RealmList<Verse> verses) {
-		this.verses = verses;
 	}
 	//</editor-fold>
 }

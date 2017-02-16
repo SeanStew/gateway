@@ -37,6 +37,7 @@ import ca.gatewaybaptistchurch.gateway.fragment.NewsFragment;
 import ca.gatewaybaptistchurch.gateway.model.Podcast;
 import ca.gatewaybaptistchurch.gateway.service.MusicService;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
+import ca.gatewaybaptistchurch.gateway.utils.OSISToRealm;
 import ca.gatewaybaptistchurch.gateway.utils.Utils;
 import ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager;
 
@@ -168,7 +169,7 @@ public class MainActivity extends GatewayActivity {
 		int id = item.getItemId();
 
 		if (id == R.id.action_settings) {
-			//new ZefaniaToRealm().execute();
+			new OSISToRealm().execute();
 			return true;
 		}
 

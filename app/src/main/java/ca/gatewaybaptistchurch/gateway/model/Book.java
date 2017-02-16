@@ -3,16 +3,17 @@ package ca.gatewaybaptistchurch.gateway.model;
 import org.w3c.dom.Element;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by sean1 on 1/22/2017.
  */
 
 public class Book extends RealmObject {
+	@PrimaryKey
 	private long id;
 	private Long bibleId;
 	private Integer number;
@@ -20,20 +21,17 @@ public class Book extends RealmObject {
 	private String abbreviation;
 	private int chapterCount = 0;
 
-	private RealmList<Chapter> chapters;
-
 	public static Book createBook(long bibleId, Element bookElement) {
 		Book book = new Book();
-		String name = bookElement.getAttribute("bname");
+		String name = bookElement.getAttribute("name");
 		book.setId(bibleId + name.hashCode());
 		book.setBibleId(bibleId);
 		book.setName(name);
-		book.setAbbreviation(bookElement.getAttribute("bsname"));
+		book.setAbbreviation(bookElement.getAttribute("osisID"));
 		try {
-			book.setNumber(Integer.valueOf(bookElement.getAttribute("bnumber")));
+			book.setNumber(Integer.valueOf(bookElement.getAttribute("number")));
 		} catch (Exception ignored) {
 		}
-
 		return book;
 	}
 
@@ -46,12 +44,12 @@ public class Book extends RealmObject {
 		return realm.where(Book.class).equalTo("id", id).findFirst();
 	}
 
-	public static RealmResults<Book> getBooks(Realm realm, long bibleId) {
-		return realm.where(Book.class).equalTo("bibleId", bibleId).findAllSorted("number", Sort.DESCENDING);
+	public RealmResults<Chapter> getChapters(Realm realm) {
+		return realm.where(Chapter.class).equalTo("bookId", getId()).findAllSorted("number", Sort.ASCENDING);
 	}
 
-	public Chapter getChapter(int chapterNumber) {
-		return getChapters().where().equalTo("number", chapterNumber).findFirst();
+	public Chapter getChapter(Realm realm, int chapterNumber) {
+		return realm.where(Chapter.class).equalTo("bookId", id).equalTo("number", chapterNumber).findFirst();
 	}
 	//</editor-fold>
 
@@ -105,17 +103,6 @@ public class Book extends RealmObject {
 
 	public void setChapterCount(int chapterCount) {
 		this.chapterCount = chapterCount;
-	}
-
-	public RealmList<Chapter> getChapters() {
-		if (chapters == null) {
-			chapters = new RealmList<>();
-		}
-		return chapters;
-	}
-
-	public void setChapters(RealmList<Chapter> chapters) {
-		this.chapters = chapters;
 	}
 	//</editor-fold>
 }

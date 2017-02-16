@@ -12,12 +12,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import ca.gatewaybaptistchurch.gateway.GatewayApplication;
 import ca.gatewaybaptistchurch.gateway.GatewayFragment;
 import ca.gatewaybaptistchurch.gateway.R;
 import ca.gatewaybaptistchurch.gateway.model.Bible;
 import ca.gatewaybaptistchurch.gateway.model.Book;
 import ca.gatewaybaptistchurch.gateway.model.Chapter;
 import ca.gatewaybaptistchurch.gateway.utils.AppValues;
+import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmModel;
 
@@ -33,6 +35,7 @@ public class BibleFragment extends GatewayFragment {
 	@BindView(R.id.bibleFragment_chapterButton) Button chapterButton;
 	//</editor-fold>
 
+	Realm bibleRealm;
 	Bible bible;
 	Book book;
 	Chapter chapter;
@@ -46,19 +49,32 @@ public class BibleFragment extends GatewayFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+		bibleRealm = Realm.getInstance(GatewayApplication.getBibleConfig());
+		getBible();
+	}
 
-		bible = Bible.getBible(realm, -1);
-		bible.addChangeListener(new RealmChangeListener<RealmModel>() {
-			@Override
-			public void onChange(RealmModel element) {
+	@Override
+	public void onStop() {
+		super.onStop();
+		bibleRealm.close();
+	}
 
-			}
-		});
-
+	private void getBible() {
+		bible = Bible.getBible(bibleRealm, -1);
 		if (bible == null) {
 			setupEmptyView();
 			return;
 		}
+		bible.addChangeListener(new RealmChangeListener<RealmModel>() {
+			@Override
+			public void onChange(RealmModel element) {
+				if (!bible.isValid()) {
+					getBible();
+					return;
+				}
+				setupDetails();
+			}
+		});
 
 		setupDetails();
 	}
@@ -74,9 +90,9 @@ public class BibleFragment extends GatewayFragment {
 		controlHolder.setVisibility(View.VISIBLE);
 		textView.setVisibility(View.VISIBLE);
 
-		book = bible.getBook(AppValues.getLastBibleBookNumber());
+		book = bible.getBook(bibleRealm, AppValues.getLastBibleBookNumber());
 		if (book == null) {
-			book = bible.getBook(1);
+			book = bible.getBook(bibleRealm, 1);
 			if (book == null) {
 				setupEmptyView();
 				return;
@@ -84,9 +100,9 @@ public class BibleFragment extends GatewayFragment {
 			AppValues.setLastBibleBookNumber(1);
 		}
 
-		chapter = book.getChapter(AppValues.getLastBibleChapterNumber());
+		chapter = book.getChapter(bibleRealm, AppValues.getLastBibleChapterNumber());
 		if (chapter == null) {
-			chapter = book.getChapter(1);
+			chapter = book.getChapter(bibleRealm, 1);
 			if (chapter == null) {
 				setupEmptyView();
 				return;
@@ -96,7 +112,7 @@ public class BibleFragment extends GatewayFragment {
 
 		bookButton.setText(String.valueOf(book.getName()));
 		chapterButton.setText(String.valueOf(chapter.getNumber()));
-		textView.setText(Html.fromHtml(chapter.getVersesFormatted()));
+		textView.setText(Html.fromHtml(chapter.getVersesFormatted(bibleRealm)));
 	}
 
 	//<editor-fold desc="Listeners">

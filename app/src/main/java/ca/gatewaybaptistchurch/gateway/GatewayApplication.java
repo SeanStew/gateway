@@ -4,10 +4,18 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import ca.gatewaybaptistchurch.gateway.model.Bible;
+import ca.gatewaybaptistchurch.gateway.model.Book;
+import ca.gatewaybaptistchurch.gateway.model.Chapter;
+import ca.gatewaybaptistchurch.gateway.model.Event;
+import ca.gatewaybaptistchurch.gateway.model.Podcast;
+import ca.gatewaybaptistchurch.gateway.model.Verse;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.SyncConfiguration;
 import io.realm.SyncUser;
+import io.realm.annotations.RealmModule;
 import timber.log.Timber;
 
 /**
@@ -16,6 +24,7 @@ import timber.log.Timber;
 
 public class GatewayApplication extends Application {
 	private static SyncConfiguration defaultConfig;
+	private static RealmConfiguration bibleConfig;
 	private static Context context;
 
 	@Override
@@ -31,14 +40,35 @@ public class GatewayApplication extends Application {
 		}
 	}
 
+	//<editor-fold desc="Realm">
+	@RealmModule(classes = {Event.class, Podcast.class})
+	private static class ServerModules {
+	}
+
 	public void setDefaultRealmConfig(SyncUser syncUser) {
-		defaultConfig = new SyncConfiguration.Builder(syncUser, Constants.REALM_URL).build();
+		defaultConfig = new SyncConfiguration.Builder(syncUser, Constants.REALM_URL).modules(new ServerModules()).build();
 		Realm.setDefaultConfiguration(defaultConfig);
 	}
 
 	public SyncConfiguration getDefaultRealmConfig() {
 		return defaultConfig;
 	}
+
+	@RealmModule(classes = {Bible.class, Book.class, Chapter.class, Verse.class})
+	private static class BibleModule {
+	}
+
+	public static RealmConfiguration getBibleConfig() {
+		if (bibleConfig == null) {
+			bibleConfig = new RealmConfiguration.Builder()
+					.name("bible.realm")
+					.schemaVersion(0)
+					.modules(new BibleModule())
+					.build();
+		}
+		return bibleConfig;
+	}
+	//</editor-fold>
 
 	public static Context getContext() {
 		return context;

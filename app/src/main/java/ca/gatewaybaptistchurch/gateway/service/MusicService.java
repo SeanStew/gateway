@@ -49,10 +49,6 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 		Focused           // we have full audio focus
 	}
 
-	private enum AudioState {
-		PLAYING, PAUSED, STOPPED
-	}
-
 	MediaPlayer mediaPlayer = null;
 	String currentPodcastUrl;
 	WifiManager.WifiLock mWifiLock;
@@ -66,7 +62,6 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 	NotificationCompat.Builder notificationBuilder = null;
 
 	int state = PlaybackStateCompat.STATE_STOPPED;
-
 	//</editor-fold>
 
 	void createMediaPlayerIfNeeded() {

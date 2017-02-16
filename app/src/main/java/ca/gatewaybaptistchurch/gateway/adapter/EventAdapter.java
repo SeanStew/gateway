@@ -9,9 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ca.gatewaybaptistchurch.gateway.R;
@@ -24,8 +21,6 @@ import io.realm.RealmRecyclerViewAdapter;
  * Created by Sean on 6/27/2016.
  */
 public class EventAdapter extends RealmRecyclerViewAdapter<Event, EventAdapter.EventViewHolder> {
-	private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("EEE MMMM dd - h:mmaa");
-
 	private EventViewHolder.OnEventClickListener clickListener;
 
 	public EventAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Event> events, EventViewHolder.OnEventClickListener eventClickListener) {
