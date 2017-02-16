@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -23,6 +24,14 @@ import com.bumptech.glide.Glide;
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
 import net.steamcrafted.materialiconlib.MaterialIconView;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+import java.net.URL;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -37,9 +46,10 @@ import ca.gatewaybaptistchurch.gateway.fragment.NewsFragment;
 import ca.gatewaybaptistchurch.gateway.model.Podcast;
 import ca.gatewaybaptistchurch.gateway.service.MusicService;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
-import ca.gatewaybaptistchurch.gateway.utils.OSISToRealm;
+import ca.gatewaybaptistchurch.gateway.utils.ESVToRealm;
 import ca.gatewaybaptistchurch.gateway.utils.Utils;
 import ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager;
+import io.realm.Realm;
 
 import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.PODCAST_STATE_UPDATE;
 
@@ -163,19 +173,45 @@ public class MainActivity extends GatewayActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-
-		if (id == R.id.action_settings) {
-			new OSISToRealm().execute();
-			return true;
+		switch (item.getItemId()) {
+			case R.id.action_esvDownload:
+				new ESVToRealm().execute();
+				break;
+			case R.id.action_updatePodcasts:
+				getPodcastTask.execute("http://gatewaybaptistchurch.ca/podcast/56b986a6-4ea1-4d20-bb6f-f0ad7e64f5c5.xml");
+				break;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
 	//</editor-fold>
+
+	AsyncTask<String, Void, Void> getPodcastTask = new AsyncTask<String, Void, Void>() {
+		@Override
+		protected Void doInBackground(String... url) {
+			Realm realm = Realm.getDefaultInstance();
+			try {
+				DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				Document document = documentBuilder.parse(new URL(url[0]).openStream());
+				NodeList nodes = document.getElementsByTagName("item");
+				for (int i = 0; i < nodes.getLength(); i++) {
+					Podcast podcast = Podcast.parsePodcast(nodes.item(i));
+					if (podcast != null) {
+						realm.beginTransaction();
+						realm.copyToRealmOrUpdate(podcast);
+						realm.commitTransaction();
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				realm.close();
+			}
+
+			return null;
+		}
+	};
 
 	//<editor-fold desc="Receivers">
 	private void registerReceivers() {

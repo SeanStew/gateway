@@ -9,7 +9,6 @@ import ca.gatewaybaptistchurch.gateway.model.Book;
 import ca.gatewaybaptistchurch.gateway.model.Chapter;
 import ca.gatewaybaptistchurch.gateway.model.Event;
 import ca.gatewaybaptistchurch.gateway.model.Podcast;
-import ca.gatewaybaptistchurch.gateway.model.Verse;
 import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -54,7 +53,7 @@ public class GatewayApplication extends Application {
 		return defaultConfig;
 	}
 
-	@RealmModule(classes = {Bible.class, Book.class, Chapter.class, Verse.class})
+	@RealmModule(classes = {Bible.class, Book.class, Chapter.class})
 	private static class BibleModule {
 	}
 
@@ -64,6 +63,7 @@ public class GatewayApplication extends Application {
 					.name("bible.realm")
 					.schemaVersion(0)
 					.modules(new BibleModule())
+					.deleteRealmIfMigrationNeeded()
 					.build();
 		}
 		return bibleConfig;

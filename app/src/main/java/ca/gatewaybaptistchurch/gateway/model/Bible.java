@@ -1,8 +1,5 @@
 package ca.gatewaybaptistchurch.gateway.model;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -22,23 +19,17 @@ public class Bible extends RealmObject {
 	private String locale;
 	private int bookCount = 0;
 
-	public static Bible createBible(Element bibleInfoElement) {
+	public static Bible createBible() {
 		Bible bible = new Bible();
-		String longName = getTextFromElement(bibleInfoElement, "title");
+		String longName = "English Standard Version";
 
 		bible.setLongName(longName);
-		bible.setShortName(bibleInfoElement.getAttribute("osisWork"));
+		bible.setShortName("ESV");
 		bible.setId(longName.hashCode());
+		bible.setDescription("The English Standard Version (ESV) is a revision of the 1971 edition of the Revised Standard Version that employs an \"essentially literal\" translation philosophy.");
+		bible.setLocale("en");
+		bible.setBookCount(Book.bookNames.length);
 		return bible;
-	}
-
-	private static String getTextFromElement(Element element, String elementTag) {
-		NodeList child = element.getElementsByTagName(elementTag);
-		if (child == null || child.getLength() <= 0) {
-			return "";
-		}
-
-		return child.item(0).getTextContent();
 	}
 
 	public RealmResults<Book> getBooks(Realm realm) {

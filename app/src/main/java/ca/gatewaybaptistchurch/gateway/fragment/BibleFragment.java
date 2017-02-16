@@ -1,12 +1,11 @@
 package ca.gatewaybaptistchurch.gateway.fragment;
 
 import android.os.Bundle;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,7 +28,7 @@ import io.realm.RealmModel;
 public class BibleFragment extends GatewayFragment {
 	//<editor-fold desc"View Initialization">
 	@BindView(R.id.bibleFragment_emptyViewHolder) View emptyView;
-	@BindView(R.id.bibleFragment_textView) TextView textView;
+	@BindView(R.id.bibleFragment_webView) WebView webView;
 	@BindView(R.id.bibleFragment_controlHolder) View controlHolder;
 	@BindView(R.id.bibleFragment_bookButton) Button bookButton;
 	@BindView(R.id.bibleFragment_chapterButton) Button chapterButton;
@@ -82,13 +81,13 @@ public class BibleFragment extends GatewayFragment {
 	private void setupEmptyView() {
 		emptyView.setVisibility(View.VISIBLE);
 		controlHolder.setVisibility(View.GONE);
-		textView.setVisibility(View.GONE);
+		webView.setVisibility(View.GONE);
 	}
 
 	private void setupDetails() {
 		emptyView.setVisibility(View.GONE);
 		controlHolder.setVisibility(View.VISIBLE);
-		textView.setVisibility(View.VISIBLE);
+		webView.setVisibility(View.VISIBLE);
 
 		book = bible.getBook(bibleRealm, AppValues.getLastBibleBookNumber());
 		if (book == null) {
@@ -112,7 +111,12 @@ public class BibleFragment extends GatewayFragment {
 
 		bookButton.setText(String.valueOf(book.getName()));
 		chapterButton.setText(String.valueOf(chapter.getNumber()));
-		textView.setText(Html.fromHtml(chapter.getVersesFormatted(bibleRealm)));
+
+		// Enable Javascript
+		webView.getSettings().setTextZoom(110);
+
+		// Load a webpage
+		webView.loadDataWithBaseURL("", chapter.getChapterText(), "text/html", "UTF-8", "");
 	}
 
 	//<editor-fold desc="Listeners">
@@ -123,7 +127,6 @@ public class BibleFragment extends GatewayFragment {
 			nextBookNumber = 1;
 		}
 		AppValues.setLastBibleBookNumber(nextBookNumber);
-
 		setupDetails();
 	}
 
@@ -134,7 +137,6 @@ public class BibleFragment extends GatewayFragment {
 			previousBookNumber = bible.getBookCount();
 		}
 		AppValues.setLastBibleBookNumber(previousBookNumber);
-
 		setupDetails();
 		return true;
 	}

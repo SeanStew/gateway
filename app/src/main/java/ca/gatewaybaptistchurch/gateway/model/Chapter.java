@@ -1,7 +1,13 @@
 package ca.gatewaybaptistchurch.gateway.model;
 
-import org.w3c.dom.Element;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import java.io.InputStream;
+
+import ca.gatewaybaptistchurch.gateway.GatewayApplication;
+import ca.gatewaybaptistchurch.gateway.R;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -15,33 +21,18 @@ import io.realm.annotations.PrimaryKey;
 public class Chapter extends RealmObject {
 	@PrimaryKey
 	private long id;
-	private Long bookId;
-	private Integer number;
+	private long bookId;
+	private int number;
 	private int verseCount = 0;
+	private String chapterText;
 
-	public static Chapter createChapter(long bookId, Element chapterElement) {
+	public static Chapter createChapter(long bookId, int number, String chapterText) {
 		Chapter chapter = new Chapter();
-		int number = -1;
-		try {
-			String sNumber = chapterElement.getAttribute("osisID").replaceAll("[^0-9]", "");
-			number = Integer.valueOf(sNumber);
-		} catch (Exception ignored) {
-		}
 		chapter.setId(bookId + number);
 		chapter.setBookId(bookId);
 		chapter.setNumber(number);
+		chapter.setChapterText(chapterText);
 		return chapter;
-	}
-
-	public String getVersesFormatted(Realm realm) {
-		String verseText = "";
-		RealmResults<Verse> verses = getVerses(realm);
-		for (int i = 0; i < verses.size(); i++) {
-			Verse verse = verses.get(i);
-			verseText = String.format("%s<sub>%s</sub>%s", verseText, verse.getNumber(), verse.getText());
-		}
-
-		return verseText;
 	}
 
 	//<editor-fold desc="Fetching">
@@ -56,14 +47,6 @@ public class Chapter extends RealmObject {
 	public static RealmResults<Chapter> getChapters(Realm realm, long bookId) {
 		return realm.where(Chapter.class).equalTo("bookId", bookId).findAllSorted("number", Sort.DESCENDING);
 	}
-
-	public RealmResults<Verse> getVerses(Realm realm) {
-		return realm.where(Verse.class).equalTo("chapterId", getId()).findAllSorted("number", Sort.ASCENDING);
-	}
-
-	public Verse getVerse(Realm realm, int verseNumber) {
-		return realm.where(Verse.class).equalTo("chapterId", getId()).equalTo("number", verseNumber).findFirst();
-	}
 	//</editor-fold>
 
 	//<editor-fold desc="Getter and Setters">
@@ -76,9 +59,6 @@ public class Chapter extends RealmObject {
 	}
 
 	public long getBookId() {
-		if (bookId == null) {
-			bookId = -1L;
-		}
 		return bookId;
 	}
 
@@ -86,11 +66,11 @@ public class Chapter extends RealmObject {
 		this.bookId = bookId;
 	}
 
-	public Integer getNumber() {
+	public int getNumber() {
 		return number;
 	}
 
-	public void setNumber(Integer number) {
+	public void setNumber(int number) {
 		this.number = number;
 	}
 
@@ -100,6 +80,26 @@ public class Chapter extends RealmObject {
 
 	public void setVerseCount(int verseCount) {
 		this.verseCount = verseCount;
+	}
+
+	public String getChapterText() {
+		try {
+			Document document = Jsoup.parse(chapterText);
+			InputStream inputStream = GatewayApplication.getContext().getResources().openRawResource(R.raw.style);
+			byte[] buffer = new byte[inputStream.available()];
+			inputStream.read(buffer);
+			inputStream.close();
+			Element head = document.head();
+			head.append(new String(buffer));
+			return document.toString();
+		} catch (Exception ignored) {
+		}
+
+		return chapterText;
+	}
+
+	public void setChapterText(String chapterText) {
+		this.chapterText = chapterText;
 	}
 	//</editor-fold>
 }

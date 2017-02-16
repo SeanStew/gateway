@@ -1,0 +1,70 @@
+<style>
+h3 {
+	margin-bottom: -1em;
+}
+span.verse-num {
+	font-size: 60%;
+	font-weight: 300;
+	vertical-align: text-bottom;
+	}
+span.woc {
+	color: #900;
+	}
+span.chapter-num {
+	font-size: 60%;
+    font-weight: 300;
+    vertical-align: text-bottom;
+	}
+div.esv-text p {
+	text-indent: 1em;
+	line-height: 1.7em;
+    display: inline-block;
+    margin-bottom: -1em;
+	}
+div.esv-text p.same-paragraph {
+	text-indent: 0;
+	}
+div.block-indent p {
+	text-indent: 0;
+	padding-left: 2em;
+	margin-left: 0;
+	}
+span.indent {
+	padding-left: 1em;
+	}
+span.indent-2, span.psalm-doxology-line {
+	padding-left: 2em;
+	}
+span.declares-line {
+	padding-left: 3em;
+	}
+span.small-caps {
+	font-variant: small-caps;
+	}
+span.selah {
+	font-style: italic;
+	margin-left: 1em;
+	}
+p.extra-space {
+	margin-top: 1em;
+	}
+div.block-indent, span.chapter-num, span.verse-num, div.block-indent span.woc  {
+	padding-left: 0;
+	}
+h4 {
+	font-weight: normal;
+	}
+h4.speaker {
+	font-variant: small-caps;
+	font-weight: bold;
+	margin-bottom: -1em;
+	}
+h4.textual-note {
+	font-variant: small-caps;	
+	}
+h4.psalm-acrostic-title {
+	font-variant: small-caps;
+	}
+h4.psalm-title {
+	}
+</style>
