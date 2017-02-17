@@ -27,6 +27,9 @@ public class Constants {
 		String PODCAST_URL = BuildConfig.APPLICATION_ID + ".podcastUrl";
 		String PODCAST_STATE = BuildConfig.APPLICATION_ID + ".podcastState";
 		String EVENT_UUID = BuildConfig.APPLICATION_ID + ".eventUuid";
+
+		String CHAPTER_TEXT_CHANGED = BuildConfig.APPLICATION_ID + ".chapterTextChanged";
+		String NEXT_CHAPTER = BuildConfig.APPLICATION_ID + ".nextChapter";
 	}
 
 	public interface Actions {
@@ -34,6 +37,9 @@ public class Constants {
 		String PODCAST_STATE_UPDATE = BuildConfig.APPLICATION_ID + ".podcastStateUpdate";
 		String PLAY_PODCAST = BuildConfig.APPLICATION_ID + ".playPodcast";
 		String PAUSE_PODCAST = BuildConfig.APPLICATION_ID + ".pausePodcast";
+
+		String BIBLE_CHAPTER_CARD_UPDATE = BuildConfig.APPLICATION_ID + ".bibleChapterCardUpdate";
+		String BIBLE_CHAPTER_UPDATE_REQUEST = BuildConfig.APPLICATION_ID + ".bibleChapterUpdateRequest";
 	}
 
 	public enum PlaybackStatus {

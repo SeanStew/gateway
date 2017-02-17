@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -72,7 +74,7 @@ public class ConnectAdapter extends RecyclerView.Adapter<ConnectAdapter.ConnectV
 		}
 
 		public void bindItem(ConnectCategory connectCategory, ConnectViewHolderClickListener clickListener) {
-			imageView.setImageResource(connectCategory.imageResource);
+			Glide.with(context).load(connectCategory.imageResource).into(imageView);
 			titleTextView.setVisibility(View.GONE);
 			speakerTextView.setVisibility(View.GONE);
 			dateTextView.setVisibility(View.GONE);

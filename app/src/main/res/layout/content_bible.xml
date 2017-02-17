@@ -1,72 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-
-	<android.support.v7.widget.CardView
-		android:id="@+id/bibleFragment_controlHolder"
-		android:layout_width="match_parent"
-		android:layout_height="?android:attr/listPreferredItemHeight"
-		android:layout_alignParentBottom="true"
-		android:layout_marginLeft="4dp"
-		android:layout_marginRight="4dp"
-		app:cardBackgroundColor="@color/primary"
-		app:cardElevation="4dp">
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_marginLeft="8dp"
-			android:layout_marginRight="8dp"
-			android:orientation="horizontal">
-
-			<Button
-				android:id="@+id/bibleFragment_bookButton"
-				style="?attr/borderlessButtonStyle"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:textColor="@color/primaryTextLight"/>
-
-			<Button
-				android:id="@+id/bibleFragment_chapterButton"
-				style="?attr/borderlessButtonStyle"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:textColor="@color/primaryTextLight"/>
-		</LinearLayout>
-	</android.support.v7.widget.CardView>
+<android.support.v4.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/bibleFragment_scrollView"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="fill_vertical"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 	<WebView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
 		android:id="@+id/bibleFragment_webView"
-		android:layout_above="@id/bibleFragment_controlHolder"
-		android:layout_alignParentTop="true">
-	</WebView>
-
-	<LinearLayout
-		android:id="@+id/bibleFragment_emptyViewHolder"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:gravity="center"
-		android:orientation="vertical"
-		android:visibility="gone">
-
-		<net.steamcrafted.materialiconlib.MaterialIconView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			app:materialIcon="book_open_variant"
-			app:materialIconColor="@color/secondaryText"
-			app:materialIconSize="@dimen/empty_view_icon"/>
-
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Unable to load the bible at this time"
-			android:textColor="@color/secondaryText"/>
-	</LinearLayout>
-</RelativeLayout>
+		android:layout_height="wrap_content">
+	</WebView>
+</android.support.v4.widget.NestedScrollView>

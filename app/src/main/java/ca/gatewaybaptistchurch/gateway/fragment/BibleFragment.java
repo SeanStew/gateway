@@ -1,16 +1,22 @@
 package ca.gatewaybaptistchurch.gateway.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.Button;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnLongClick;
 import ca.gatewaybaptistchurch.gateway.GatewayApplication;
 import ca.gatewaybaptistchurch.gateway.GatewayFragment;
 import ca.gatewaybaptistchurch.gateway.R;
@@ -18,20 +24,23 @@ import ca.gatewaybaptistchurch.gateway.model.Bible;
 import ca.gatewaybaptistchurch.gateway.model.Book;
 import ca.gatewaybaptistchurch.gateway.model.Chapter;
 import ca.gatewaybaptistchurch.gateway.utils.AppValues;
+import ca.gatewaybaptistchurch.gateway.utils.Constants;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmModel;
+import timber.log.Timber;
+
+import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.BIBLE_CHAPTER_CARD_UPDATE;
+import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.BIBLE_CHAPTER_UPDATE_REQUEST;
 
 /**
  * Created by Sean on 5/29/2016.
  */
 public class BibleFragment extends GatewayFragment {
+	private static final String TAG = BibleFragment.class.getSimpleName();
 	//<editor-fold desc"View Initialization">
-	@BindView(R.id.bibleFragment_emptyViewHolder) View emptyView;
 	@BindView(R.id.bibleFragment_webView) WebView webView;
-	@BindView(R.id.bibleFragment_controlHolder) View controlHolder;
-	@BindView(R.id.bibleFragment_bookButton) Button bookButton;
-	@BindView(R.id.bibleFragment_chapterButton) Button chapterButton;
+	@BindView(R.id.bibleFragment_scrollView) NestedScrollView scrollView;
 	//</editor-fold>
 
 	Realm bibleRealm;
@@ -42,6 +51,7 @@ public class BibleFragment extends GatewayFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.content_bible, container, false);
 		ButterKnife.bind(this, rootView);
+		setHasOptionsMenu(true);
 		return rootView;
 	}
 
@@ -50,18 +60,19 @@ public class BibleFragment extends GatewayFragment {
 		super.onStart();
 		bibleRealm = Realm.getInstance(GatewayApplication.getBibleConfig());
 		getBible();
+		registerReceivers();
 	}
 
 	@Override
 	public void onStop() {
-		super.onStop();
 		bibleRealm.close();
+		unregisterReceivers();
+		super.onStop();
 	}
 
 	private void getBible() {
 		bible = Bible.getBible(bibleRealm, -1);
 		if (bible == null) {
-			setupEmptyView();
 			return;
 		}
 		bible.addChangeListener(new RealmChangeListener<RealmModel>() {
@@ -78,22 +89,11 @@ public class BibleFragment extends GatewayFragment {
 		setupDetails();
 	}
 
-	private void setupEmptyView() {
-		emptyView.setVisibility(View.VISIBLE);
-		controlHolder.setVisibility(View.GONE);
-		webView.setVisibility(View.GONE);
-	}
-
 	private void setupDetails() {
-		emptyView.setVisibility(View.GONE);
-		controlHolder.setVisibility(View.VISIBLE);
-		webView.setVisibility(View.VISIBLE);
-
 		book = bible.getBook(bibleRealm, AppValues.getLastBibleBookNumber());
 		if (book == null) {
 			book = bible.getBook(bibleRealm, 1);
 			if (book == null) {
-				setupEmptyView();
 				return;
 			}
 			AppValues.setLastBibleBookNumber(1);
@@ -103,65 +103,137 @@ public class BibleFragment extends GatewayFragment {
 		if (chapter == null) {
 			chapter = book.getChapter(bibleRealm, 1);
 			if (chapter == null) {
-				setupEmptyView();
 				return;
 			}
 			AppValues.setLastBibleChapterNumber(1);
 		}
 
-		bookButton.setText(String.valueOf(book.getName()));
-		chapterButton.setText(String.valueOf(chapter.getNumber()));
-
-		// Enable Javascript
-		webView.getSettings().setTextZoom(110);
-
-		// Load a webpage
-		webView.loadDataWithBaseURL("", chapter.getChapterText(), "text/html", "UTF-8", "");
+//		bookButton.setText(String.valueOf(book.getName()));
+//		chapterButton.setText(String.valueOf(chapter.getNumber()));
+		updateBibleBottomCard();
+		setupWebView();
 	}
 
-	//<editor-fold desc="Listeners">
-	@OnClick(R.id.bibleFragment_bookButton)
-	public void onBookButtonClicked() {
-		int nextBookNumber = book.getNumber() + 1;
-		if (bible.getBookCount() < nextBookNumber) {
-			nextBookNumber = 1;
+	private void setupWebView() {
+		webView.getSettings().setTextZoom(110);
+		webView.loadDataWithBaseURL("", chapter.getChapterText(), "text/html", "UTF-8", "");
+		scrollView.scrollTo(0, 0);
+	}
+
+	private void updateBibleBottomCard() {
+		if (book == null || chapter == null || bible == null) {
+			return;
 		}
+
+		Intent intent = new Intent(BIBLE_CHAPTER_CARD_UPDATE);
+		intent.putExtra(Constants.Extras.CHAPTER_TEXT_CHANGED, String.format("%s %s %s", book.getName(), chapter.getNumber(), bible.getShortName()));
+		getActivity().sendBroadcast(intent);
+
+		getActivity().invalidateOptionsMenu();
+	}
+
+	private void goToNextChapter(boolean nextChapter) {
+		int nextChapterNumber = 1;
+		if (nextChapter) {
+			nextChapterNumber = chapter.getNumber() + 1;
+			if (nextChapterNumber > book.getChapterCount()) {
+				goToNextBook(true);
+				return;
+			}
+			AppValues.setLastBibleChapterNumber(nextChapterNumber);
+		} else {
+			nextChapterNumber = chapter.getNumber() - 1;
+			if (nextChapterNumber < 1) {
+				goToNextBook(false);
+				return;
+			}
+		}
+		AppValues.setLastBibleChapterNumber(nextChapterNumber);
+		setupDetails();
+	}
+
+	private void goToNextBook(boolean nextBook) {
+		int nextBookNumber;
+		int nextChapterNumber = 1;
+		if (nextBook) {
+			nextBookNumber = book.getNumber() + 1;
+			if (nextBookNumber > bible.getBookCount()) {
+				nextBookNumber = 1;
+			}
+		} else {
+			nextBookNumber = book.getNumber() - 1;
+			if (nextBookNumber < 0) {
+				nextBookNumber = bible.getBookCount();
+			}
+			nextChapterNumber = bible.getBook(bibleRealm, nextBookNumber).getChapterCount();
+		}
+		AppValues.setLastBibleChapterNumber(nextChapterNumber);
 		AppValues.setLastBibleBookNumber(nextBookNumber);
 		setupDetails();
 	}
 
-	@OnLongClick(R.id.bibleFragment_bookButton)
-	public boolean onBookButtonLongClicked() {
-		int previousBookNumber = book.getNumber() - 1;
-		if (previousBookNumber < 1) {
-			previousBookNumber = bible.getBookCount();
-		}
-		AppValues.setLastBibleBookNumber(previousBookNumber);
-		setupDetails();
-		return true;
+	//<editor-fold desc="Option Menu">
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.bible_menu, menu);
+		MenuItem item = menu.findItem(R.id.action_chapterSelection);
+		item.setActionView(R.layout.menu_chapter_selection);
+
+		item.getActionView().findViewById(R.id.menuChapterSelection_bookSelection).setOnClickListener(onChapterSelectionClicked);
+		item.getActionView().findViewById(R.id.menuChapterSelection_chapterSelection).setOnClickListener(onChapterSelectionClicked);
 	}
 
-	@OnClick(R.id.bibleFragment_chapterButton)
-	public void onChapterButtonClicked() {
-		int nextChapterNumber = chapter.getNumber() + 1;
-		if (book.getChapterCount() < nextChapterNumber) {
-			nextChapterNumber = 1;
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		if (chapter == null || book == null) {
+			return;
 		}
-		AppValues.setLastBibleChapterNumber(nextChapterNumber);
 
-		setupDetails();
+		MenuItem item = menu.findItem(R.id.action_chapterSelection);
+		item.setActionView(R.layout.menu_chapter_selection);
+
+		((TextView) item.getActionView().findViewById(R.id.menuChapterSelection_bookSelectionText)).setText(book.getAbbreviation());
+		((TextView) item.getActionView().findViewById(R.id.menuChapterSelection_chapterSelectionText)).setText(String.valueOf(chapter.getNumber()));
 	}
 
-	@OnLongClick(R.id.bibleFragment_chapterButton)
-	public boolean onChapterButtonLongClicked() {
-		int previousChapterNumber = chapter.getNumber() - 1;
-		if (previousChapterNumber < 1) {
-			previousChapterNumber = book.getChapterCount();
-		}
-		AppValues.setLastBibleChapterNumber(previousChapterNumber);
+	//</editor-fold>
 
-		setupDetails();
-		return true;
+	//<editor-fold desc="Receivers">
+	private void registerReceivers() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(BIBLE_CHAPTER_UPDATE_REQUEST);
+		getActivity().registerReceiver(broadcastReceiver, filter);
 	}
+
+	private void unregisterReceivers() {
+		getActivity().unregisterReceiver(broadcastReceiver);
+	}
+
+	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent == null || intent.getAction() == null) {
+				return;
+			}
+
+			switch (intent.getAction()) {
+				case BIBLE_CHAPTER_UPDATE_REQUEST:
+					if (intent.hasExtra(Constants.Extras.NEXT_CHAPTER)) {
+						goToNextChapter(intent.getBooleanExtra(Constants.Extras.NEXT_CHAPTER, true));
+					}
+					break;
+			}
+		}
+	};
+	//</editor-fold>
+
+	//<editor-fold desc="Listeners">
+	View.OnClickListener onChapterSelectionClicked = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			Timber.tag(TAG).d("clicked %s", v.getId());
+		}
+	};
 	//</editor-fold>
 }

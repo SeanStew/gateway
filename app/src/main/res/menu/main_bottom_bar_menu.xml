@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      app:bbn_alwaysShowLabels="true"
+      app:bbn_itemColorActive="@android:color/white"
+      app:bbn_itemColorDisabled="#33ffffff"
+      app:bbn_itemColorInactive="#99ffffff"
+      app:bbn_rippleColor="#ccffffff">
+	<item
+		android:id="@+id/action_messages"
+		android:color="?attr/colorPrimary"
+		android:icon="@drawable/ic_newspaper_white_24dp"
+		android:title="Messages"/>
+
+	<item
+		android:id="@+id/action_bible"
+		android:color="?attr/colorPrimary"
+		android:icon="@drawable/ic_book_open_page_variant_white_24dp"
+		android:title="Bible"/>
+	<item
+		android:id="@+id/action_news"
+		android:color="?attr/colorPrimary"
+		android:icon="@drawable/ic_calendar_text_white_24dp"
+		android:title="News"/>
+	<item
+		android:id="@+id/action_connect"
+		android:color="?attr/colorPrimary"
+		android:icon="@drawable/ic_account_multiple_white_24dp"
+		android:title="Connect"/>
+	<item
+		android:id="@+id/action_give"
+		android:color="?attr/colorPrimary"
+		android:icon="@drawable/ic_credit_card_white_24dp"
+		android:title="Give"/>
+</menu>

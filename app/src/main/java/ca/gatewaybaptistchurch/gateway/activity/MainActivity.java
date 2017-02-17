@@ -6,13 +6,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,7 +50,9 @@ import ca.gatewaybaptistchurch.gateway.utils.ESVToRealm;
 import ca.gatewaybaptistchurch.gateway.utils.Utils;
 import ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager;
 import io.realm.Realm;
+import it.sephiroth.android.library.bottomnavigation.BottomNavigation;
 
+import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.BIBLE_CHAPTER_CARD_UPDATE;
 import static ca.gatewaybaptistchurch.gateway.utils.Constants.Actions.PODCAST_STATE_UPDATE;
 
 public class MainActivity extends GatewayActivity {
@@ -58,15 +60,21 @@ public class MainActivity extends GatewayActivity {
 	@BindView(R.id.drawer_layout) DrawerLayout drawer;
 	@BindView(R.id.nav_view) NavigationView navigationView;
 	@BindView(R.id.toolbar) Toolbar toolbar;
-	@BindView(R.id.tab_layout) TabLayout tabLayout;
+	@BindView(R.id.mainActivity_bottomBar) BottomNavigation bottomNavigationView;
 	@BindView(R.id.view_pager) NonSwipeableViewPager viewPager;
 
 	@BindView(R.id.mainActivity_mediaCardView) View mediaBottomCard;
 	@BindView(R.id.mainActivity_mediaImageView) ImageView mediaImageView;
 	@BindView(R.id.mainActivity_mediaTextView) TextView mediaTextView;
 	@BindView(R.id.mainActivity_mediaPlayButton) MaterialIconView mediaPlayButton;
+
+	@BindView(R.id.mainActivity_bibleCardView) View bibleBottomCard;
+	@BindView(R.id.mainActivity_bibleCardViewText) TextView bibleBottomCardText;
+	@BindView(R.id.mainActivity_previousFab) FloatingActionButton previousFab;
+	@BindView(R.id.mainActivity_nextFab) FloatingActionButton nextFab;
 	//</editor-fold>
 
+	//<editor-fold desc="Activity Lifecycle">
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -104,6 +112,7 @@ public class MainActivity extends GatewayActivity {
 			super.onBackPressed();
 		}
 	}
+	//</editor-fold>
 
 	//<editor-fold desc="View Setup">
 	private void setupViews() {
@@ -113,6 +122,9 @@ public class MainActivity extends GatewayActivity {
 		toggle.syncState();
 
 		navigationView.setNavigationItemSelectedListener(navigationItemSelectedListener);
+
+		previousFab.setImageDrawable(MaterialDrawableBuilder.with(this).setIcon(MaterialDrawableBuilder.IconValue.CHEVRON_LEFT).setColorResource(android.R.color.black).setSizeDp(24).build());
+		nextFab.setImageDrawable(MaterialDrawableBuilder.with(this).setIcon(MaterialDrawableBuilder.IconValue.CHEVRON_RIGHT).setColorResource(android.R.color.black).setSizeDp(24).build());
 	}
 
 	private void setupViewPager() {
@@ -124,33 +136,8 @@ public class MainActivity extends GatewayActivity {
 		adapter.addFragment(new GiveFragment(), "Give");
 		viewPager.setAdapter(adapter);
 		viewPager.setOffscreenPageLimit(4);
-		tabLayout.setupWithViewPager(viewPager);
-		tabLayout.addOnTabSelectedListener(onTabSelected);
 
-		setupIcon(0, MaterialDrawableBuilder.IconValue.NEWSPAPER, adapter.getPageTitle(0).toString());
-		setupIcon(1, MaterialDrawableBuilder.IconValue.BOOK_OPEN_VARIANT, adapter.getPageTitle(1).toString());
-		setupIcon(2, MaterialDrawableBuilder.IconValue.CALENDAR_TEXT, adapter.getPageTitle(2).toString());
-		setupIcon(3, MaterialDrawableBuilder.IconValue.ACCOUNT_MULTIPLE, adapter.getPageTitle(3).toString());
-		setupIcon(4, MaterialDrawableBuilder.IconValue.CREDIT_CARD, adapter.getPageTitle(4).toString());
-		setTabSelected(tabLayout.getTabAt(0).getCustomView(), true);
-	}
-
-	private void setupIcon(int position, MaterialDrawableBuilder.IconValue iconValue, String title) {
-		View rootView = LayoutInflater.from(this).inflate(R.layout.tab_custom, null);
-		TextView textView = (TextView) rootView.findViewById(R.id.tab_text);
-		MaterialIconView iconView = (MaterialIconView) rootView.findViewById(R.id.tab_icon);
-		textView.setText(title);
-		iconView.setIcon(iconValue);
-		tabLayout.getTabAt(position).setCustomView(rootView);
-	}
-
-	private void setTabSelected(View rootView, boolean selected) {
-		int color = selected ? getResources().getColor(R.color.icons) : getResources().getColor(R.color.iconsDisabled);
-		TextView textView = (TextView) rootView.findViewById(R.id.tab_text);
-		MaterialIconView iconView = (MaterialIconView) rootView.findViewById(R.id.tab_icon);
-
-		textView.setTextColor(color);
-		iconView.setColor(color);
+		bottomNavigationView.setOnMenuItemClickListener(bottomMenuItemSelected);
 	}
 	//</editor-fold>
 
@@ -217,6 +204,7 @@ public class MainActivity extends GatewayActivity {
 	private void registerReceivers() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(PODCAST_STATE_UPDATE);
+		filter.addAction(BIBLE_CHAPTER_CARD_UPDATE);
 		registerReceiver(broadcastReceiver, filter);
 	}
 
@@ -235,6 +223,11 @@ public class MainActivity extends GatewayActivity {
 				case PODCAST_STATE_UPDATE:
 					updatePodcastState(intent);
 					break;
+				case BIBLE_CHAPTER_CARD_UPDATE:
+					if (intent.hasExtra(Constants.Extras.CHAPTER_TEXT_CHANGED)) {
+						bibleBottomCardText.setText(intent.getStringExtra(Constants.Extras.CHAPTER_TEXT_CHANGED));
+					}
+					break;
 			}
 		}
 	};
@@ -245,18 +238,18 @@ public class MainActivity extends GatewayActivity {
 
 		Podcast podcast = Podcast.getPodcast(realm, podcastUrl);
 		if (podcast == null || podcastState == Constants.PodcastState.STOPPED) {
-			showBottomSheet(false);
+			showMediaBottomSheet(false);
 			return;
 		}
 
-		showBottomSheet(true);
+		showMediaBottomSheet(true);
 		Glide.with(MainActivity.this).load(podcast.getImageUrl()).into(mediaImageView);
 		mediaPlayButton.setIcon(podcastState == Constants.PodcastState.PLAYING ? MaterialDrawableBuilder.IconValue.PAUSE : MaterialDrawableBuilder.IconValue.PLAY);
 		mediaTextView.setText(podcast.getTitle());
 		mediaTextView.setSelected(true);
 	}
 
-	private void showBottomSheet(boolean expand) {
+	private void showMediaBottomSheet(boolean expand) {
 		mediaBottomCard.setVisibility(expand ? View.VISIBLE : View.GONE);
 	}
 	//</editor-fold>
@@ -267,20 +260,54 @@ public class MainActivity extends GatewayActivity {
 		podcastSelected(null);
 	}
 
-	TabLayout.OnTabSelectedListener onTabSelected = new TabLayout.OnTabSelectedListener() {
+	@OnClick({R.id.mainActivity_previousFab, R.id.mainActivity_nextFab})
+	public void onBibleFabClicked(View view) {
+		Intent intent = new Intent(Constants.Actions.BIBLE_CHAPTER_UPDATE_REQUEST);
+		switch (view.getId()) {
+			case R.id.mainActivity_previousFab:
+				intent.putExtra(Constants.Extras.NEXT_CHAPTER, false);
+				break;
+			case R.id.mainActivity_nextFab:
+				intent.putExtra(Constants.Extras.NEXT_CHAPTER, true);
+				break;
+		}
+		sendBroadcast(intent);
+	}
+
+	BottomNavigation.OnMenuItemSelectionListener bottomMenuItemSelected = new BottomNavigation.OnMenuItemSelectionListener() {
 		@Override
-		public void onTabSelected(TabLayout.Tab tab) {
-			viewPager.setCurrentItem(tab.getPosition(), true);
-			setTabSelected(tab.getCustomView(), true);
+		public void onMenuItemSelect(@IdRes final int resId, int i1, boolean b) {
+			switch (resId) {
+				case R.id.action_messages:
+					viewPager.setCurrentItem(0, true);
+					break;
+				case R.id.action_bible:
+					viewPager.setCurrentItem(1, true);
+					break;
+				case R.id.action_news:
+					viewPager.setCurrentItem(2, true);
+					break;
+				case R.id.action_connect:
+					viewPager.setCurrentItem(3, true);
+					break;
+				case R.id.action_give:
+					viewPager.setCurrentItem(4, true);
+					break;
+			}
+
+			if (resId == R.id.action_bible) {
+				bibleBottomCard.setVisibility(View.VISIBLE);
+				previousFab.show();
+				nextFab.show();
+			} else {
+				bibleBottomCard.setVisibility(View.GONE);
+				previousFab.hide();
+				nextFab.hide();
+			}
 		}
 
 		@Override
-		public void onTabUnselected(TabLayout.Tab tab) {
-			setTabSelected(tab.getCustomView(), false);
-		}
-
-		@Override
-		public void onTabReselected(TabLayout.Tab tab) {
+		public void onMenuItemReselect(@IdRes int i, int i1, boolean b) {
 
 		}
 	};
@@ -290,7 +317,6 @@ public class MainActivity extends GatewayActivity {
 		public boolean onNavigationItemSelected(MenuItem item) {
 			// Handle navigation view item clicks here.
 			int id = item.getItemId();
-
 			if (id == R.id.nav_about) {
 
 			} else if (id == R.id.nav_help) {

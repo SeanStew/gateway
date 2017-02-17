@@ -1,11 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/rootView"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:animateLayoutChanges="true"
+	android:animateLayoutChanges="false"
+	android:orientation="vertical"
 	app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+	<ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager
+		android:id="@+id/view_pager"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"/>
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/mainActivity_bibleCardView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_marginLeft="5dp"
+		android:layout_marginRight="5dp"
+		android:animateLayoutChanges="true"
+		android:background="@android:color/white"
+		android:visibility="gone"
+		app:cardElevation="8dp">
+
+		<TextView
+			android:id="@+id/mainActivity_bibleCardViewText"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:padding="4dp"
+			android:textColor="@color/primaryText"/>
+	</android.support.v7.widget.CardView>
 
 	<android.support.v7.widget.CardView
 		android:id="@+id/mainActivity_mediaCardView"
@@ -54,12 +83,4 @@
 				android:src="@drawable/messages_placeholder"/>
 		</LinearLayout>
 	</android.support.v7.widget.CardView>
-
-	<ca.gatewaybaptistchurch.gateway.view.NonSwipeableViewPager
-		android:id="@+id/view_pager"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_above="@id/mainActivity_mediaCardView"
-		android:layout_alignParentTop="true"/>
-
-</RelativeLayout>
+</LinearLayout>
